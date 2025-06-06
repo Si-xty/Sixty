@@ -1,8 +1,8 @@
 <footer class="main-footer">
-    <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
+    <strong><a href="https://sixty.cl">Sixty</a> Copyright &copy; 2025 </strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-      <b>Version</b> 3.2.0
+      <!-- <b>Version</b> 3.2.0 -->
     </div>
   </footer>
 
@@ -50,11 +50,14 @@
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="dist/js/pages/dashboard.js"></script>
 
+<!-- Select2 -->
+<script src="plugins/select2/js/select2.full.min.js"></script>
 
 <!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="plugins/sweetalert2/sweetalert2.all.min.js"></script>
 
 
 <script src="dist/js/notifications.js"></script>
+<script src="dist/js/select2.js"></script> 
 </body>
 </html>

@@ -15,7 +15,7 @@
             <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
           </div>
           <div class="info">
-            <a href="#" class="d-block">
+            <a href="<?= base_url("profile")?>" class="d-block">
               <?= $this->session->userdata('auth_user')['first_name']; ?>
               <?= $this->session->userdata('auth_user')['last_name']; ?>
             </a>

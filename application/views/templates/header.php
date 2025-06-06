@@ -25,6 +25,9 @@
   <link rel="stylesheet" href="<?= base_url('plugins/daterangepicker/daterangepicker.css') ?>">
   <!-- summernote -->
   <link rel="stylesheet" href="<?= base_url('plugins/summernote/summernote-bs4.min.css') ?>">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="<?= base_url('plugins/select2/css/select2.min.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') ?>">
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
