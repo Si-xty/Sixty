@@ -8,9 +8,8 @@ application/logs/*
 
 !application/*/.htaccess
 
-application/config/*.php
-
-.gitignore
+application/config/*
+application/libraries/*
 
 
 .env

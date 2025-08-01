@@ -106,7 +106,7 @@
                 //         }
                 // }
 
-                public function updateUser($userId, $data)
+                public function updateDataUser($userId, $data)
                 {
                 // Realizar la actualización en la tabla 'users' utilizando el ID del usuario
                 $this->db->where('rut', $userId);
@@ -122,7 +122,7 @@
                 $data = $this->mostrarUsuariosByUser($user);
                 if ($data) {
                         $this->db->set('last_conn', 'NOW()', FALSE);
-                        $this->db->where('rut', $data->rut);
+                        $this->db->where('user', $user);
                         return $this->db->update('users');
                 }
                 return false;
@@ -146,7 +146,59 @@
                         if ($dv == 11) return '0';
                         if ($dv == 10) return 'K';
                         return (string)$dv;
-                    }
+                }
+
+                
+                // --- Métodos para Google Login ---
+                public function getUserByGoogleId($google_id)
+                {
+                        $this->db->where('google_id', $google_id);
+                        $query = $this->db->get('users');
+                        return $query->row();
+                }
+
+                public function getUserByEmail($email)
+                {
+                        $this->db->where('email', $email);
+                        $query = $this->db->get('users');
+                        return $query->row();
+                }
+
+                public function registerGoogleUser($data) {
+                        
+                        $data_to_insert = [
+                        'google_id' => $data['google_id'],
+                        'email' => $data['email'],
+                        'user' => $data['user'],
+                        'first_name' => $data['first_name'] ?? '',
+                        'last_name' => $data['last_name'] ?? '',
+                        'full_name' => $data['full_name'] ?? '',
+                        'rol' => $data['rol'] ?? 'usuario',
+                        'password' => $data['password'] ?? null,
+                        'picture' => $data['picture'] ?? '',
+                        'rut' => $data['rut'] ?? null,
+                        'phone_num' => $data['phone_num'] ?? null,
+                        'location' => $data['location'] ?? null,
+                        'active' => $data['active'] ?? 'si',
+                        ];
+                        
+                        $this->db->insert('users', $data_to_insert);
+                        return $this->db->insert_id();
+                }
+
+                public function updateUser($id, $data)
+                {
+                        $this->db->where('id', $id);
+                        $this->db->update('users', $data);
+                        return $this->db->affected_rows();
+                }
+
+                public function getUserById($id)
+                {
+                        $this->db->where('id', $id);
+                        $query = $this->db->get('users');
+                        return $query->row();
+                }
  
         }
 ?>

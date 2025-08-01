@@ -63,3 +63,6 @@ $route['logout']['GET'] = 'Auth/LogoutController/logout';
 
 $route['profile']['GET'] = 'User/UserController/index';
 
+
+$route['googleauth'] = 'Auth/GoogleController/index';
+$route['googleauth/logout'] = 'Auth/GoogleController/logout';

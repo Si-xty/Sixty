@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-adsense-account" content="ca-pub-2719792487651208">
   <title>Sixty | Log in</title>
 
   <!-- Google Font: Source Sans Pro -->
@@ -60,7 +61,7 @@
 
       <div class="social-auth-links text-center mb-3">
         <p>o</p>
-        <a href="#" class="btn btn-block google-btn">
+        <a href="<?= base_url('googleauth')?>" class="btn btn-block google-btn">
           <img src="/dist/img/google.svg" alt="Google Logo" class="google-logo">
           Continuar con Google
         </a>
