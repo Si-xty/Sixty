@@ -8,7 +8,7 @@ class Authentication extends CI_Model
         parent::__construct();
         if($this->session->has_userdata('authenticated'))
         {
-            if($this->session->userdata('authenticated') == '3')
+            if($this->session->userdata('authenticated') == '1')
             {
                 // echo "u are admin";
             }
@@ -24,7 +24,7 @@ class Authentication extends CI_Model
     {
         if($this->session->has_userdata('authenticated'))
         {
-            if($this->session->userdata('authenticated') !='3')
+            if($this->session->userdata('authenticated') !='1')
             {
                 $this->session->set_flashdata('status', 'Acceso Denegado');
                 redirect(base_url('403'));
@@ -41,7 +41,7 @@ class Authentication extends CI_Model
     {
         if($this->session->has_userdata('authenticated'))
         {
-            if($this->session->userdata('authenticated') !='2' && $this->session->userdata('authenticated') !='3')
+            if($this->session->userdata('authenticated') !='2' && $this->session->userdata('authenticated') !='1')
             {
                 $this->session->set_flashdata('status', 'Acceso Denegado');
                 redirect(base_url('403'));
@@ -58,7 +58,7 @@ class Authentication extends CI_Model
     {
         if($this->session->has_userdata('authenticated'))
         {
-            if($this->session->userdata('authenticated') !='1' && $this->session->userdata('authenticated') !='3')
+            if($this->session->userdata('authenticated') !='3' && $this->session->userdata('authenticated') !='1')
             {
                 $this->session->set_flashdata('status', 'Acceso Denegado');
                 redirect(base_url('403'));

@@ -50,6 +50,8 @@
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="dist/js/pages/dashboard.js"></script>
 
+<script>var base_url = "<?= base_url(); ?>";</script>
+
 <!-- Select2 -->
 <script src="plugins/select2/js/select2.full.min.js"></script>
 
@@ -57,7 +59,8 @@
 <script src="plugins/sweetalert2/sweetalert2.all.min.js"></script>
 
 
-<script src="dist/js/notifications.js"></script>
+<!-- <script src="dist/js/notifications.js"></script> -->
+<script src="dist/js/notifications.js?v=<?= time(); ?>"></script>
 <script src="dist/js/select2.js"></script> 
 </body>
 </html>

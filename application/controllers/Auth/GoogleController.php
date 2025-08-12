@@ -88,18 +88,18 @@ class GoogleController extends CI_Controller
 
                         if ($user && !empty($user->email)) { 
 
-                            $subject = '¡Bienvenido(a) a Sixty.cl!';
+                            $subject = '¡Bienvenido a Sixty!';
                             $html_body = '
                                 <html>
                                 <head>
-                                    <title>Bienvenido(a) a Sixty.cl</title>
+                                    <title>Bienvenido a Sixty</title>
                                 </head>
                                 <body>
                                     <h1>¡Hola, ' . htmlspecialchars($user->full_name) . '!</h1>
-                                    <p>Gracias por registrarte en Sixty.cl.</p>
+                                    <p>Gracias por registrarte en Sixty.</p>
                                     <p>Estamos emocionados de tenerte a bordo. ¡Explora todas nuestras funciones!</p>
                                     <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
-                                    <p>Saludos cordiales,<br>El equipo de Sixty.cl</p>
+                                    <p>Saludos cordiales,<br>El equipo de Sixty</p>
                                 </body>
                                 </html>
                             ';

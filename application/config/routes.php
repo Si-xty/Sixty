@@ -66,3 +66,5 @@ $route['profile']['GET'] = 'User/UserController/index';
 
 $route['googleauth'] = 'Auth/GoogleController/index';
 $route['googleauth/logout'] = 'Auth/GoogleController/logout';
+
+$route['wol'] = 'WolController/wol';
