@@ -1,0 +1,43 @@
+/* Estilos personalizados para el Kanban */
+.kanban-board {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding: 10px;
+}
+.kanban-column {
+    background-color: #f4f6f9;
+    border-radius: 5px;
+    min-width: 300px;
+    width: 300px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+.kanban-column-header {
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #dee2e6;
+    cursor: move;
+}
+.kanban-tasks {
+    padding: 10px;
+    min-height: 50px;
+}
+.kanban-task {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    cursor: grab;
+}
+.kanban-task:active {
+    cursor: grabbing;
+}
+.kanban-task .card-header {
+    cursor: grab;
+}
+.kanban-tasks.sortable-ghost, .kanban-columns.sortable-ghost {
+    opacity: 0.4;
+    background-color: #e9ecef;
+}

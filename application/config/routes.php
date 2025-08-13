@@ -51,7 +51,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 // $route['ja']['GET'] = 'Auth/LoginController/a';
 
-$route['default_controller'] = 'MainController';
+// $route['default_controller'] = 'MainController';
+$route['default_controller'] = 'Welcome';
+
 $route['home'] = 'user/home';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
@@ -68,3 +70,12 @@ $route['googleauth'] = 'Auth/GoogleController/index';
 $route['googleauth/logout'] = 'Auth/GoogleController/logout';
 
 $route['wol'] = 'WolController/wol';
+
+// Kanban
+$route['kanban'] = 'KanbanController/index';
+$route['kanban/load_board/(:num)'] = 'KanbanController/load_board/$1';
+$route['kanban/create_board'] = 'KanbanController/create_board';
+$route['kanban/create_column'] = 'KanbanController/create_column';
+$route['kanban/update_column_order'] = 'KanbanController/update_column_order';
+$route['kanban/create_task'] = 'KanbanController/create_task';
+$route['kanban/update_task_position'] = 'KanbanController/update_task_position';

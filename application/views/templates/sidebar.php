@@ -85,14 +85,16 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="pages/kanban.html" class="nav-link">
-              <i class="nav-icon fas fa-columns"></i>
-              <p>
-                Kanban Board
-              </p>
-            </a>
-          </li>
+          <?php if($this->session->userdata('authenticated') == '1') { ?>
+            <li class="nav-item">
+              <a href="<?= base_url('kanban') ?>" class="nav-link">
+                <i class="nav-icon fas fa-columns"></i>
+                <p>
+                  Kanban Board
+                </p>
+              </a>
+            </li>
+          <?php } ?>
           <li class="nav-header">MISCELLANEOUS</li>
           <li class="nav-item">
             <a href="iframe.html" class="nav-link">
