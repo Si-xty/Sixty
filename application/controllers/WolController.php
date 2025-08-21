@@ -39,16 +39,14 @@ class WolController extends CI_Controller {
 
                 echo json_encode([
                     'success' => true,
-                    'status' => 'success',
-                    'message' => 'Wake-on-LAN ejecutado correctamente'
+                    'status' => 'success'
                 ]);
             } else {
                 // $data['message'] = "Error: La direcci\u00F3n MAC no est\u00E1 definida en el archivo de configuraci\u00F3n.";
 
                 echo json_encode([
                     'success' => true,
-                    'status' => 'error',
-                    'message' => 'MAC no definida'
+                    'status' => 'error'
                 ]);
             }
         } else {
@@ -57,7 +55,6 @@ class WolController extends CI_Controller {
             echo json_encode([
                     'success' => true,
                     'status' => 'error',
-                    'message' => 'Dirección archivo de configuración no encontrado'
                 ]);
         }
     }
