@@ -1,43 +1,433 @@
-/* Estilos personalizados para el Kanban */
+/* Estilos para el contenedor del tablero Kanban */
 .kanban-board {
+    min-height: calc(100vh - 114px);
     display: flex;
     overflow-x: auto;
-    gap: 15px;
-    padding: 10px;
+    overflow-y: hidden;
+    gap: 20px;
+    padding: 10px 25px;
+    flex-wrap: nowrap; /* Asegura que las columnas no se envuelvan a la siguiente línea */
+    flex-grow: 1;
+    align-items: flex-start;
 }
+
+/* Estilo para las columnas (depósitos) */
 .kanban-column {
-    background-color: #f4f6f9;
-    border-radius: 5px;
-    min-width: 300px;
-    width: 300px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    min-width: 280px;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px;
+    background-color: transparent;
 }
+
+/* Estilo para el encabezado de la columna */
 .kanban-column-header {
-    padding: 10px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    border-bottom: 1px solid #dee2e6;
-    cursor: move;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 10px 0;
+    cursor: grab;
+    user-select: none;
+    color: #212529;
 }
+
+/* Contenedor de las tareas */
 .kanban-tasks {
-    padding: 10px;
-    min-height: 50px;
+    flex-grow: 1;
+    min-height: 20px;
+    padding: 5px 0;
+    /* overflow-y: auto; */
 }
+
+/* Estilo para las tareas (cards) */
 .kanban-task {
     background-color: #fff;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 4px;
     margin-bottom: 10px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     cursor: grab;
+    transition: box-shadow 0.2s ease;
+}
+.kanban-task:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 .kanban-task:active {
     cursor: grabbing;
 }
-.kanban-task .card-header {
-    cursor: grab;
+
+/* Contenedor y botón de "Agregar tarea" */
+.add-task-container {
+    padding-top: 5px;
+    position: relative;
 }
-.kanban-tasks.sortable-ghost, .kanban-columns.sortable-ghost {
-    opacity: 0.4;
-    background-color: #e9ecef;
+.add-task-btn {
+    background-color: transparent;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    color: #1945d4;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: left;
+}
+.add-task-btn:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    color: #0063c7;
+}
+.add-task-btn i {
+    margin-right: 5px;
+}
+
+/* ---------------------------------------------------- */
+/* ESTILOS para el pop-up de "Agregar tarea" */
+/* ---------------------------------------------------- */
+.add-task-popup {
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    
+    background-color: transparent;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 15px;
+    margin-top: 5px;
+}
+
+.add-task-form-inline .form-group {
+    margin-bottom: 10px;
+}
+
+.add-task-form-inline .form-control {
+    border: none;
+    background-color: transparent;
+    font-size: 0.9rem;
+    padding-left: 0;
+    width: 100%;
+}
+
+.add-task-form-inline .form-control:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.task-options-list {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0 0;
+}
+
+.task-options-list li {
+    margin-bottom: 5px;
+}
+
+.task-options-list li a {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease;
+}
+.task-options-list li a:hover {
+    color: #007bff;
+}
+
+.task-options-list li a i {
+    margin-right: 8px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Estilo para el botón de agregar nueva columna (fijo al final) */
+.kanban-column-add {
+    min-width: 280px;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    order: 999;
+    flex-shrink: 0;
+    padding: 0 10px;
+}
+.kanban-column-header-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #292125;
+    padding: 10px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+    width: 100%;
+    text-align: left;
+}
+.kanban-column-header-btn:hover {
+    color: #007bff;
+}
+#add-column-input {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    padding: 8px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #212529;
+    border-bottom: 2px solid transparent;
+}
+#add-column-input:focus {
+    outline: none;
+    border-bottom: 2px solid #007bff;
+}
+#add-column-input::placeholder {
+    color: #adb5bd;
+}
+.column-options-dropdown {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+.column-options-dropdown.is-open {
+    visibility: visible;
+    opacity: 1;
+}
+.column-options-dropdown.is-open:hover {
+    visibility: visible;
+    opacity: 1;
+}
+.kanban-header-hover:hover .column-options-dropdown {
+    visibility: visible;
+    opacity: 1;
+}
+/* Estilos para el contenedor del header de la columna */
+.kanban-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.kanban-column-title-container {
+    flex-grow: 1;
+}
+/* Asegura que el input y el span no se estorben mutuamente */
+.column-name-input {
+    width: 100%;
+}
+
+.task-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.task-title-wrapper {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.task-title-wrapper p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+.task-options-dropdown {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+.kanban-task:hover .task-options-dropdown {
+    visibility: visible;
+    opacity: 1;
+}
+.task-options-dropdown.is-open {
+    visibility: visible;
+    opacity: 1;
+}
+
+
+/* ---------------------------------------------------- */
+/* Estilos para la lista de tableros (planes) */
+/* ---------------------------------------------------- */
+.plan-list-header, .plan-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #444;
+}
+.plan-list-header {
+    font-weight: bold;
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+.plan-item {
+    background-color: var(--dark-item-bg);
+    color: var(--dark-text);
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.plan-item:hover {
+    background-color: var(--dark-item-hover-bg);
+    color: var(--dark-text);
+}
+.plan-name-col {
+    flex: 2;
+}
+.plan-privacy-col,
+.plan-last-access-col {
+    flex: 1;
+}
+.board-options-dropdown {
+    margin-right: 15px;
+}
+.board-options-dropdown .dropdown-toggle {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+.plan-item:hover .board-options-dropdown .dropdown-toggle,
+.plan-item .board-options-dropdown.show .dropdown-toggle {
+    visibility: visible;
+    opacity: 1;
+}
+.clickable-row {
+    cursor: pointer;
+}
+
+
+/* Estilos para el modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1052 !important;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7); /* Tonalidad oscura para el fondo */
+}
+
+/* Contenido del modal */
+.modal-content {
+    background-color: var(--modal-bg);
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    color: var(--modal-text);
+}
+
+.modal-header, .modal-body, .modal-footer {
+    padding: 10px 0;
+}
+
+.close-btn {
+    color: var(--modal-text);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Estilos para secciones */
+.section {
+    margin-bottom: 20px;
+}
+
+.section-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.section-row .section {
+    flex-basis: 48%; /* Para que ocupen casi la mitad del espacio */
+}
+
+/* Estilos para etiquetas y notas */
+#modal-task-notes {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--input-text);
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tag {
+    padding: 5px 10px;
+    border-radius: 15px;
+    color: white;
+    font-size: 14px;
+}
+
+/* Variables de color para el tema oscuro/claro */
+:root {
+    --modal-bg: #2b2b2b;
+    --modal-text: #f0f0f0;
+    --input-bg: #3c3c3c;
+    --input-text: #f0f0f0;
+}
+
+/* Si tu tema es claro, puedes sobrescribir las variables */
+body.light-theme {
+    --modal-bg: #f8f9fa;
+    --modal-text: #212529;
+    --input-bg: #e9ecef;
+    --input-text: #212529;
+}
+
+
+#createBoardModal {
+    z-index: 1053 !important;
+}
+
+#taskModal {
+    z-index: 1054 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+/* Aumenta el área clickeable del botón de los 3 puntos en columnas y tareas */
+.kanban-column-header .dropdown-toggle,
+.kanban-task .dropdown-toggle {
+    min-width: 20px;
+    min-height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.kanban-column-header .dropdown-toggle:hover,
+.kanban-task .dropdown-toggle:hover {
+    background: #f0f0f0;
 }

@@ -10,7 +10,7 @@ class ColumnModel extends CI_Model {
     // Obtener todas las columnas de un tablero específico
     public function get_columns_by_board($board_id) {
         $this->db->where('board_id', $board_id);
-        $this->db->order_by('column_order', 'ASC'); // Muy importante para el orden en el frontend
+        $this->db->order_by('column_order', 'ASC');
         $query = $this->db->get('kanban_columns');
         return $query->result();
     }
@@ -38,14 +38,32 @@ class ColumnModel extends CI_Model {
     // Eliminar una columna
     public function delete_column($column_id) {
         $this->db->where('column_id', $column_id);
-        $this->db->delete('kanban_columns');
-        return $this->db->affected_rows();
+        return $this->db->delete('kanban_columns');
     }
 
-    // Actualizar el orden de las columnas (ej. después de arrastrar)
+    public function get_last_column_order($board_id) {
+        $this->db->select_max('column_order');
+        $this->db->where('board_id', $board_id);
+        $query = $this->db->get('kanban_columns');
+        $row = $query->row();
+        return $row->column_order ? $row->column_order + 1 : 0;
+    }
+
     public function update_column_order($column_id, $new_order) {
         $this->db->where('column_id', $column_id);
         $this->db->update('kanban_columns', ['column_order' => $new_order]);
         return $this->db->affected_rows();
+    }
+
+    
+    public function delete_columns_by_board($board_id) {
+        $this->db->where('board_id', $board_id);
+        return $this->db->delete('kanban_columns');
+    }
+
+    public function rename_column($column_id, $new_name) {
+        $this->db->set('column_name', $new_name);
+        $this->db->where('column_id', $column_id);
+        return $this->db->update('kanban_columns');
     }
 }

@@ -1,0 +1,9 @@
+.plan-item .dropdown-toggle::after {
+    content: none;
+}
+.kanban-column-header .dropdown-toggle::after {
+    content: none; 
+}
+.kanban-task .dropdown-toggle::after { 
+    content: none; 
+}

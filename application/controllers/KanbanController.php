@@ -12,6 +12,9 @@ class KanbanController extends CI_Controller {
         $this->load->model('kanban/TagModel');
         $this->load->helper('url');
 
+        $this->load->model('Authentication');
+        $this->Authentication->checkTester();
+
         // ----------------------------------------------------
         // Lógica de Autenticación y Autorización
         // ----------------------------------------------------
@@ -22,9 +25,9 @@ class KanbanController extends CI_Controller {
             redirect('auth/login'); 
         }
 
-        if ($user_role !== '1') {
-            redirect('welcome');
-        }
+        // if ($user_role !== '1') {
+        //     redirect('welcome');
+        // }
     }
 
     public function index() {
@@ -32,23 +35,23 @@ class KanbanController extends CI_Controller {
         $data['boards'] = $this->BoardModel->get_user_boards($user_id);
 
         // Si el usuario tiene tableros, cargar el primer tablero por defecto
-        if (!empty($data['boards'])) {
-            $first_board_id = $data['boards'][0]->board_id;
-            $data['columns'] = $this->ColumnModel->get_columns_by_board($first_board_id);
-            $data['all_tasks'] = $this->get_tasks_with_tags_structured($first_board_id);
-            $data['current_board_id'] = $first_board_id;
-        } else {
-            // Si no hay tableros, pasar datos vacíos
-            $data['columns'] = [];
-            $data['tasks'] = [];
-            $data['current_board_id'] = NULL;
-        }
+        // if (!empty($data['boards'])) {
+        //     $first_board_id = $data['boards'][0]->board_id;
+        //     $data['columns'] = $this->ColumnModel->get_columns_by_board($first_board_id);
+        //     $data['all_tasks'] = $this->get_tasks_with_tags_structured($first_board_id);
+        //     $data['current_board_id'] = $first_board_id;
+        // } else {
+        //     // Si no hay tableros, pasar datos vacíos
+        //     $data['columns'] = [];
+        //     $data['tasks'] = [];
+        //     $data['current_board_id'] = NULL;
+        // }
 
         // Cargar la vista principal del Kanban
         $this->load->view('templates/header');
         $this->load->view('templates/sidebar');
-        $this->load->view('templates/navbar');
-        $this->load->view('kanban_main', $data);
+        $this->load->view('kanban/navbar_boards');
+        $this->load->view('kanban/kanban_board_list', $data);
         $this->load->view('templates/footer');
     }
     
@@ -58,15 +61,33 @@ class KanbanController extends CI_Controller {
         $board = $this->BoardModel->get_board($board_id, $user_id);
         
         if ($board) {
+            $update_data = ['last_modified' => date('Y-m-d H:i:s')];
+            $this->BoardModel->update_board($board_id, $user_id, $update_data);
+
             $data['boards'] = $this->BoardModel->get_user_boards($user_id);
-            $data['columns'] = $this->ColumnModel->get_columns_by_board($board_id);
-            $data['all_tasks'] = $this->get_tasks_with_tags_structured($board_id);
-            $data['current_board_id'] = $board_id;
             
+            // 1. Obtener las columnas
+            $columns = $this->ColumnModel->get_columns_by_board($board_id);
+            
+            // 2. Obtener las tareas estructuradas por columna
+            $tasks_by_column = $this->get_tasks_with_tags_structured($board_id);
+            
+            // 3. Unir las tareas a sus respectivas columnas
+            foreach ($columns as $column) {
+                // Si la columna tiene tareas en el array $tasks_by_column, se las asigna.
+                // Si no, se asigna un array vacío.
+                $column->tasks = isset($tasks_by_column[$column->column_id]) ? $tasks_by_column[$column->column_id] : [];
+            }
+            
+            $data['columns'] = $columns; // Ahora $data['columns'] tiene las tareas anidadas
+            $data['current_board_id'] = $board_id;
+            $data['current_board'] = $board;
+            $data['currentUserId'] = $user_id;
+
             $this->load->view('templates/header');
             $this->load->view('templates/sidebar');
-            $this->load->view('templates/navbar');
-            $this->load->view('kanban_main', $data);
+            $this->load->view('kanban/navbar_board', $data);
+            $this->load->view('kanban/kanban_main', $data); // Pasa los datos combinados a la vista
             $this->load->view('templates/footer');
         } else {
             show_error('No tienes permisos para ver este tablero o no existe.', 403); 
@@ -74,27 +95,14 @@ class KanbanController extends CI_Controller {
     }
 
     private function get_tasks_with_tags_structured($board_id) {
-        $all_tasks_raw = $this->TaskModel->get_tasks_with_tags_by_board($board_id);
-
+        // Devuelve las tareas agrupadas por columna, cada tarea con sus tags (array de objetos)
+        $all_tasks = $this->TaskModel->get_tasks_with_tags_by_board($board_id);
         $tasks_by_column = [];
-        foreach ($all_tasks_raw as $task) {
+        foreach ($all_tasks as $task) {
+            // Asigna los tags usando TagModel
+            $task->tags = $this->TagModel->get_tags_by_task($task->task_id);
             if (!isset($tasks_by_column[$task->column_id])) {
                 $tasks_by_column[$task->column_id] = [];
-            }
-            if ($task->tag_ids) {
-                $tag_ids = explode(',', $task->tag_ids);
-                $tag_names = explode(',', $task->tag_names);
-                $tag_colors = explode(',', $task->tag_colors);
-                $task->tags = [];
-                foreach ($tag_ids as $key => $tag_id) {
-                    $task->tags[] = (object) [
-                        'tag_id' => $tag_id,
-                        'tag_name' => $tag_names[$key],
-                        'color_code' => $tag_colors[$key],
-                    ];
-                }
-            } else {
-                $task->tags = [];
             }
             $tasks_by_column[$task->column_id][] = $task;
         }
@@ -141,11 +149,9 @@ class KanbanController extends CI_Controller {
      * Crea una nueva columna
      */
     public function create_column() {
-        // 1. Recupera los datos del formulario
         $board_id = $this->input->post('board_id');
         $column_name = $this->input->post('column_name');
 
-        // Aquí deberías añadir validación, por si los datos vienen vacíos
         if (empty($board_id) || empty($column_name)) {
             // Manejar el error: faltan datos
             $response = ['success' => false, 'message' => 'Faltan datos para crear la columna.'];
@@ -153,18 +159,23 @@ class KanbanController extends CI_Controller {
             return;
         }
 
-        // 2. Crea un array de datos
+        $last_order = $this->ColumnModel->get_last_column_order($board_id);
+
         $data = [
-            'board_id' => $board_id, // Aquí pasas la variable, NO la etiqueta PHP
+            'board_id' => $board_id,
             'column_name' => $column_name,
-            'column_order' => 0 // Ajusta esto según tu lógica
+            'column_order' => $last_order
         ];
 
-        // 3. Llama al modelo para insertar los datos
         $column_id = $this->ColumnModel->create_column($data);
 
         if ($column_id) {
-            $response = ['success' => true, 'column_id' => $column_id, 'message' => 'Columna creada con éxito.'];
+            $response = [
+                'success' => true, 
+                'column_id' => $column_id, 
+                'column_name' => $column_name,
+                'column_order' => $last_order
+            ];
         } else {
             $response = ['success' => false, 'message' => 'Error al crear la columna.'];
         }
@@ -226,7 +237,7 @@ class KanbanController extends CI_Controller {
     
                 if ($task_id) {
                     if (!empty($tags)) {
-                        $this->TagModel->assign_tags_to_task($task_id, $tags);
+                            $this->TagModel->assign_tags_to_task($task_id, $tags); // Assign tags if provided
                     }
                     $response = ['success' => true, 'task_id' => $task_id];
                 } else {
@@ -261,4 +272,135 @@ class KanbanController extends CI_Controller {
         }
     }
 
+    public function rename_board() {
+        $board_id = $this->input->post('board_id');
+        $new_name = $this->input->post('new_name');
+
+        if ($this->BoardModel->rename_board($board_id, $new_name)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No se pudo renombrar el tablero.']);
+        }
+    }
+
+    public function delete_board() {
+        $user_id = $this->session->userdata('user_authenticated');
+        $board_id = $this->input->post('board_id');
+
+        $columns = $this->ColumnModel->get_columns_by_board($board_id);
+
+        if (!empty($columns)) {
+            $column_ids = array_map(function($column) {
+                return $column->column_id;
+            }, $columns);
+            
+            $this->TaskModel->delete_tasks_by_columns($column_ids, $user_id);
+            $this->ColumnModel->delete_columns_by_board($board_id);
+        }
+
+        if ($this->BoardModel->delete_board($board_id, $user_id)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No se pudo eliminar el tablero.']);
+        }
+    }
+
+    public function rename_column() {
+        $column_id = $this->input->post('column_id');
+        $new_name = $this->input->post('new_name');
+        
+        if ($this->ColumnModel->rename_column($column_id, $new_name)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No se pudo renombrar la columna.']);
+        }
+    }
+
+    public function delete_column() {
+        $user_id = $this->session->userdata('user_authenticated');
+        $column_id = $this->input->post('column_id');
+
+        $this->TaskModel->delete_tasks_by_columns($column_id, $user_id);
+
+        if ($this->ColumnModel->delete_column($column_id)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No se pudo eliminar la columna.']);
+        }
+    }
+
+    public function delete_task() {
+        $task_id = $this->input->post('task_id');
+        if ($this->TaskModel->delete_task($task_id)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No se pudo eliminar la tarea.']);
+        }
+    }
+    
+
+    // Método para obtener los detalles de una tarea
+    public function get_task_details() {
+        $task_id = $this->input->post('task_id');
+        $task = $this->TaskModel->get_task($task_id);
+        
+        if ($task) {
+            $response = [
+                'success' => true,
+                'task'    => $task
+            ];
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Tarea no encontrada.'
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    
+    // Método para actualizar los datos de una tarea (incluye etiquetas)
+    public function update_task() {
+        $task_id    = $this->input->post('task_id');
+        $title      = $this->input->post('title');
+        $notes      = $this->input->post('notes');
+        $priority   = $this->input->post('priority');
+        $column_id  = $this->input->post('column_id');
+        $tags       = $this->input->post('tags'); // array de tag_id[]
+
+        $data = [
+            'title' => $title,
+            'description' => $notes,
+            'priority' => $priority,
+            'column_id' => $column_id
+        ];
+        $update_status = $this->TaskModel->update_task($task_id, $data);
+        // Actualizar etiquetas
+        if (is_array($tags)) {
+            $this->TagModel->assign_tags_to_task($task_id, $tags);
+        }
+        if ($update_status) {
+            $response = ['success' => true];
+        } else {
+            $response = ['success' => false, 'message' => 'No se pudo actualizar la tarea'];
+        }
+        echo json_encode($response);
+    }
+
+    /**
+     * Devuelve todas las etiquetas disponibles (para el submenú de etiquetas)
+     */
+    public function get_all_tags() {
+        if ($this->input->is_ajax_request()) {
+            $tags = $this->TagModel->get_all_tags();
+            $response = [
+                'success' => true,
+                'tags' => $tags
+            ];
+            $this->output->set_content_type('application/json')->set_output(json_encode($response));
+        } else {
+            show_404();
+        }
+    }
 }

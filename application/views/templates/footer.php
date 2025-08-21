@@ -46,15 +46,17 @@
 <!-- AdminLTE App -->
 <script src="<?= base_url('dist/js/adminlte.js') ?>"></script>
 <!-- AdminLTE for demo purposes -->
-<!-- <script src="dist/js/demo.js"></script> -->
+<!-- <script src="<?= base_url('dist/js/demo.js') ?>"></script> -->
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<!-- <script src="dist/js/pages/dashboard.js"></script> -->
+<!-- <script src="<?= base_url('dist/js/pages/dashboard.js') ?>"></script> -->
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 
 <script>var base_url = "<?= base_url(); ?>";</script>
 
-<script>var currentBoardId = "<?= $current_board_id ?>";</script>
+<?php if (isset($current_board_id)): ?>
+    <script>var currentBoardId = "<?= html_escape($current_board_id) ?>";</script>
+<?php endif; ?>
 
 <!-- Select2 -->
 <script src="<?= base_url('plugins/select2/js/select2.full.min.js') ?>"></script>
@@ -63,9 +65,12 @@
 <script src="<?= base_url('plugins/sweetalert2/sweetalert2.all.min.js') ?>"></script>
 
 
-<!-- <script src="dist/js/notifications.js"></script> -->
 <script src="<?= base_url('dist/js/notifications.js') ?>?v=<?= time(); ?>"></script>
 <script src="<?= base_url('dist/js/select2.js') ?>?v=<?= time(); ?>"></script>
+
+
+<script src="<?= base_url('dist/js/ajax.js') ?>?v=<?= time(); ?>"></script>
 <script src="<?= base_url('dist/js/kanban.js') ?>?v=<?= time(); ?>"></script>
+
 </body>
 </html>

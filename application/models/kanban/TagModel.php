@@ -7,48 +7,33 @@ class TagModel extends CI_Model {
         parent::__construct();
     }
 
-    // Obtener todos los tags de un usuario (o tags generales si user_id es NULL)
-    public function get_user_tags($user_id) {
-        $this->db->where('user_id', $user_id);
-        $this->db->or_where('user_id', NULL); // Incluir tags generales si los hay
+
+    // Obtener todos los tags disponibles (solo lectura, sin filtro por usuario)
+    public function get_all_tags() {
+        $this->db->order_by('tag_name', 'ASC');
         $query = $this->db->get('kanban_tags');
         return $query->result();
     }
 
-    // Obtener un tag por ID
+
+    // Obtener un tag por ID (solo lectura)
     public function get_tag($tag_id) {
         $this->db->where('tag_id', $tag_id);
         $query = $this->db->get('kanban_tags');
         return $query->row();
     }
 
-    // Crear un nuevo tag
-    public function create_tag($data) {
-        $this->db->insert('kanban_tags', $data);
-        return $this->db->insert_id();
-    }
 
-    // Actualizar un tag
-    public function update_tag($tag_id, $user_id, $data) {
-        $this->db->where('tag_id', $tag_id);
-        $this->db->where('user_id', $user_id); // Asegurar que solo el propietario o un tag general se actualice
-        $this->db->update('kanban_tags', $data);
-        return $this->db->affected_rows();
-    }
+    // Métodos de creación, edición y borrado de tags eliminados (solo lectura desde ahora)
 
-    // Eliminar un tag
-    public function delete_tag($tag_id, $user_id) {
-        $this->db->where('tag_id', $tag_id);
-        $this->db->where('user_id', $user_id); // Asegurar que solo el propietario o un tag general se elimine
-        $this->db->delete('kanban_tags');
-        return $this->db->affected_rows();
-    }
 
-    // Asignar tags a una tarea
+    // Asignar tags a una tarea (múltiples tags)
     public function assign_tags_to_task($task_id, $tag_ids) {
+        // Elimina los tags actuales
         $this->db->where('task_id', $task_id);
-        $this->db->delete('kanban_task_tags'); // Primero elimina los tags existentes para esta tarea
+        $this->db->delete('kanban_task_tags');
 
+        // Inserta los nuevos tags
         if (!empty($tag_ids)) {
             $batch_data = [];
             foreach ($tag_ids as $tag_id) {
@@ -57,9 +42,9 @@ class TagModel extends CI_Model {
                     'tag_id' => $tag_id
                 ];
             }
-            return $this->db->insert_batch('kanban_task_tags', $batch_data);
+            $this->db->insert_batch('kanban_task_tags', $batch_data);
         }
-        return TRUE; // No hay tags para asignar, pero la operación fue exitosa
+        return TRUE;
     }
 
     // Obtener tags de una tarea específica

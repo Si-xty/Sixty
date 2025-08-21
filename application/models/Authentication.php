@@ -70,6 +70,23 @@ class Authentication extends CI_Model
             redirect(base_url('login'));
         }
     }
+    
+    public function checkTester()
+    {
+        if($this->session->has_userdata('authenticated'))
+        {
+            if($this->session->userdata('authenticated') !='tester' && $this->session->userdata('authenticated') !='1')
+            {
+                $this->session->set_flashdata('status', 'Acceso Denegado');
+                redirect(base_url('403'));
+            }
+        }
+        else
+        {
+            $this->session->set_flashdata('status', 'Inicia sesión primero');
+            redirect(base_url('login'));
+        }
+    }
 }
 
 ?>

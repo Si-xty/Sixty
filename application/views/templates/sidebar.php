@@ -15,7 +15,7 @@
             <img src="<?= $this->session->userdata('auth_user')['picture']; ?>" class="img-circle elevation-2" alt="User Image">
           </div>
           <div class="info">
-            <a href="<?= base_url("profile")?>" class="d-block">
+            <a href="<?= base_url('profile')?>" class="d-block">
               <?= $this->session->userdata('auth_user')['user']; ?>
             </a>
           </div>
@@ -48,21 +48,21 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="./index.html" class="nav-link active">
+                <a href="<?= base_url('welcome')?>" class="nav-link active">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Dashboard v1</p>
+                  <p>Inicio</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="./index2.html" class="nav-link">
+                <a href="<?= base_url('proximamente')?>" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Dashboard v2</p>
+                  <p>...</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="./index3.html" class="nav-link">
+                <a href="<?= base_url('proximamente')?>" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Dashboard v3</p>
+                  <p>...</p>
                 </a>
               </li>
               <?php if($this->session->userdata('authenticated') == '1') { ?>
@@ -75,9 +75,9 @@
               <?php } ?>
             </ul>
           </li>
-          <li class="nav-header">EXAMPLES</li>
+          <li class="nav-header">UTILITIES</li>
           <li class="nav-item">
-            <a href="pages/calendar.html" class="nav-link">
+            <a href="<?= base_url('proximamente')?>" class="nav-link">
               <i class="nav-icon far fa-calendar-alt"></i>
               <p>
                 Calendar
@@ -85,7 +85,7 @@
               </p>
             </a>
           </li>
-          <?php if($this->session->userdata('authenticated') == '1') { ?>
+          <?php if($this->session->userdata('authenticated') == 'tester' || $this->session->userdata('authenticated') == '1') { ?>
             <li class="nav-item">
               <a href="<?= base_url('kanban') ?>" class="nav-link">
                 <i class="nav-icon fas fa-columns"></i>
@@ -95,7 +95,7 @@
               </a>
             </li>
           <?php } ?>
-          <li class="nav-header">MISCELLANEOUS</li>
+          <!-- <li class="nav-header">MISCELLANEOUS</li>
           <li class="nav-item">
             <a href="iframe.html" class="nav-link">
               <i class="nav-icon fas fa-ellipsis-h"></i>
@@ -103,11 +103,11 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="https://adminlte.io/docs/3.1/" class="nav-link">
+            <a href="#" class="nav-link">
               <i class="nav-icon fas fa-file"></i>
               <p>Documentation</p>
             </a>
-          </li>
+          </li> -->
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

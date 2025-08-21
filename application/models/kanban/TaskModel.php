@@ -1,3 +1,4 @@
+
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
@@ -53,19 +54,21 @@ class TaskModel extends CI_Model {
         return $this->db->affected_rows();
     }
 
-    // Obtener las tareas de un tablero incluyendo sus tags
+    // Obtener las tareas de un tablero (sin tags, solo tareas)
     public function get_tasks_with_tags_by_board($board_id) {
-        $this->db->select('t.*, GROUP_CONCAT(kbt.tag_id) as tag_ids, GROUP_CONCAT(kbt.tag_name) as tag_names, GROUP_CONCAT(kbt.color_code) as tag_colors');
+        $this->db->select('t.*');
         $this->db->from('kanban_tasks t');
         $this->db->join('kanban_columns kc', 't.column_id = kc.column_id');
-        $this->db->join('kanban_boards kb', 'kc.board_id = kb.board_id');
-        $this->db->join('kanban_task_tags ktt', 't.task_id = ktt.task_id', 'left');
-        $this->db->join('kanban_tags kbt', 'ktt.tag_id = kbt.tag_id', 'left');
-        $this->db->where('kb.board_id', $board_id);
-        $this->db->group_by('t.task_id');
+        $this->db->where('kc.board_id', $board_id);
         $this->db->order_by('kc.column_order ASC, t.task_order ASC');
         $query = $this->db->get();
         return $query->result();
+    }
+
+    public function delete_tasks_by_columns($column_ids, $user_id) {
+        $this->db->where_in('column_id', $column_ids);
+        $this->db->where('user_id', $user_id); // ¡Crucial para la seguridad!
+        return $this->db->delete('kanban_tasks');
     }
 
 }

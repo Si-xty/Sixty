@@ -51,8 +51,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 // $route['ja']['GET'] = 'Auth/LoginController/a';
 
-// $route['default_controller'] = 'MainController';
-$route['default_controller'] = 'Welcome';
+$route['default_controller'] = 'MainController';
+// $route['default_controller'] = 'Welcome';
 
 $route['home'] = 'user/home';
 $route['404_override'] = '';
@@ -65,6 +65,7 @@ $route['logout']['GET'] = 'Auth/LogoutController/logout';
 
 $route['profile']['GET'] = 'User/UserController/index';
 
+$route['proximamente'] = 'ProximamenteController/index';
 
 $route['googleauth'] = 'Auth/GoogleController/index';
 $route['googleauth/logout'] = 'Auth/GoogleController/logout';
@@ -79,3 +80,11 @@ $route['kanban/create_column'] = 'KanbanController/create_column';
 $route['kanban/update_column_order'] = 'KanbanController/update_column_order';
 $route['kanban/create_task'] = 'KanbanController/create_task';
 $route['kanban/update_task_position'] = 'KanbanController/update_task_position';
+$route['kanban/delete_board'] = 'KanbanController/delete_board';
+$route['kanban/rename_board'] = 'KanbanController/rename_board';
+$route['kanban/rename_column'] = 'KanbanController/rename_column';
+$route['kanban/delete_column'] = 'KanbanController/delete_column';
+$route['kanban/delete_task'] = 'KanbanController/delete_task';
+$route['kanban/get_task_details'] = 'KanbanController/get_task_details';
+$route['kanban/update_task'] = 'KanbanController/update_task';
+$route['kanban/get_all_tags'] = 'KanbanController/get_all_tags';

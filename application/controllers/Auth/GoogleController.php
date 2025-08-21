@@ -110,11 +110,11 @@ class GoogleController extends CI_Controller
                             $text_body = "¡Hola, " . $user->full_name . "! Gracias por registrarte en Sixty.cl. ¡Explora nuestras funciones!";
 
 
-                            if ($this->mailjet_mailer->send_email($user->email, $user->full_name, $subject, $html_body, $text_body)) {
-                                log_message('info', 'Correo de bienvenida (API) enviado a: ' . $user->email);
-                            } else {
-                                log_message('error', 'Fallo el envio de correo de bienvenida (API) a: ' . $user->email);
-                            }            
+                            // if ($this->mailjet_mailer->send_email($user->email, $user->full_name, $subject, $html_body, $text_body)) {
+                            //     log_message('info', 'Correo de bienvenida (API) enviado a: ' . $user->email);
+                            // } else {
+                            //     log_message('error', 'Fallo el envio de correo de bienvenida (API) a: ' . $user->email);
+                            // }            
                         }
                     } else {
                         $update_data = [

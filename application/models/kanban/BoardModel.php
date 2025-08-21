@@ -40,8 +40,15 @@ class BoardModel extends CI_Model {
     // Eliminar un tablero
     public function delete_board($board_id, $user_id) {
         $this->db->where('board_id', $board_id);
-        $this->db->where('user_id', $user_id); // Asegurar que solo el usuario propietario pueda eliminar
+        $this->db->where('user_id', $user_id);
         $this->db->delete('kanban_boards');
         return $this->db->affected_rows();
     }
+
+    public function rename_board($board_id, $new_name) {
+        $this->db->set('board_name', $new_name);
+        $this->db->where('board_id', $board_id);
+        return $this->db->update('kanban_boards');
+    }
+
 }
