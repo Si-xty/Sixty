@@ -70,6 +70,9 @@
 
 
 <script src="<?= base_url('dist/js/ajax.js') ?>?v=<?= time(); ?>"></script>
+
+<script src="<?= base_url('plugins/popper/popper.min.js') ?>?v=<?= time(); ?>"></script>
+
 <script src="<?= base_url('dist/js/kanban.js') ?>?v=<?= time(); ?>"></script>
 
 </body>

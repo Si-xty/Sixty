@@ -33,7 +33,7 @@
             </span>
             <div class="dropdown board-options-dropdown">
                 <a href="#" class="dropdown-toggle text-muted" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-ellipsis-v"></i>
+                    <i class="fas fa-ellipsis-v kanban-ellipsis"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item rename-board" href="#" data-board-id="<?= $board->board_id ?>" data-board-name="<?= html_escape($board->board_name) ?>">Renombrar</a>

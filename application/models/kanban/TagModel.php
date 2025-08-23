@@ -56,4 +56,10 @@ class TagModel extends CI_Model {
         $query = $this->db->get();
         return $query->result();
     }
+
+    // Actualizar el color de una etiqueta
+    public function update_tag_color($tag_id, $color_code) {
+        $this->db->where('tag_id', $tag_id);
+        return $this->db->update('kanban_tags', ['color_code' => $color_code]);
+    }
 }

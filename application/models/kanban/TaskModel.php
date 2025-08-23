@@ -11,7 +11,7 @@ class TaskModel extends CI_Model {
     // Obtener todas las tareas de una columna específica
     public function get_tasks_by_column($column_id) {
         $this->db->where('column_id', $column_id);
-        $this->db->order_by('task_order', 'ASC'); // Muy importante para el orden en el frontend
+        $this->db->order_by('task_order', 'ASC');
         $query = $this->db->get('kanban_tasks');
         return $query->result();
     }
@@ -67,8 +67,23 @@ class TaskModel extends CI_Model {
 
     public function delete_tasks_by_columns($column_ids, $user_id) {
         $this->db->where_in('column_id', $column_ids);
-        $this->db->where('user_id', $user_id); // ¡Crucial para la seguridad!
+        $this->db->where('user_id', $user_id);
         return $this->db->delete('kanban_tasks');
+    }
+
+    // Actualiza el orden de todas las tareas de una columna según el array recibido
+    public function update_tasks_order_in_column($column_id, $ordered_task_ids) {
+        if (!is_array($ordered_task_ids)) return false;
+        $this->db->trans_start();
+        foreach ($ordered_task_ids as $order => $task_id) {
+            $this->db->where('task_id', $task_id);
+            $this->db->update('kanban_tasks', [
+                'column_id' => $column_id,
+                'task_order' => $order
+            ]);
+        }
+        $this->db->trans_complete();
+        return $this->db->trans_status();
     }
 
 }

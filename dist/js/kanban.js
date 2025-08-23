@@ -1,3 +1,25 @@
+    // Utilidad: Actualiza el color de todas las etiquetas en el DOM por tag_id
+    function updateTagColorInDOM(tagId, colorCode) {
+        // Actualiza en las tareas
+        $('.tag[data-tag-id="' + tagId + '"]').css('background', colorCode);
+        // Actualiza en el submenú
+        $('.tag-submenu-item[data-tag-id="' + tagId + '"] > span:first-child').css('background', colorCode);
+    }
+
+    // Ejemplo de uso: (debes llamar esto cuando el usuario cambie el color)
+    // $(document).on('change', '.color-picker', function() {
+    //     var tagId = $(this).data('tag-id');
+    //     var colorCode = $(this).val();
+    //     $.post(base_url + 'kanban/update_tag_color', { tag_id: tagId, color_code: colorCode }, function(resp) {
+    //         if (resp.success) {
+    //             updateTagColorInDOM(tagId, colorCode);
+    //         } else {
+    //             showErrorNotification(resp.message || 'No se pudo actualizar el color');
+    //         }
+    //     }, 'json').fail(function() {
+    //         showAjaxErrorNotification('Error de comunicación con el servidor al actualizar el color.');
+    //     });
+    // });
 $(function () {
     // ----------------------------------------------------
     // Funcionalidad de Arrastrar y Soltar (Drag & Drop)
@@ -38,14 +60,16 @@ $(function () {
                 group: 'tasks',
                 animation: 150,
                 onEnd: function (evt) {
-                    var taskId = evt.item.dataset.taskId;
-                    var newColumnId = $(evt.to).closest('.kanban-column').data('column-id');
-                    var newOrder = Array.from(evt.to.children).indexOf(evt.item);
-                    
-                    $.post(base_url + 'kanban/update_task_position', { 
-                        task_id: taskId,
-                        new_column_id: newColumnId,
-                        new_order: newOrder
+                    var $tasksContainer = $(evt.to);
+                    var newColumnId = $tasksContainer.closest('.kanban-column').data('column-id');
+                    var orderedTaskIds = [];
+                    $tasksContainer.children('.kanban-task').each(function(idx, el) {
+                        var tid = $(el).data('task-id');
+                        if (tid) orderedTaskIds.push(tid);
+                    });
+                    $.post(base_url + 'kanban/update_task_position', {
+                        column_id: newColumnId,
+                        ordered_task_ids: orderedTaskIds
                     }).fail(function(xhr, status, error) {
                         showAjaxErrorNotification('Error de comunicación con el servidor al mover la tarea.');
                     });
@@ -146,28 +170,8 @@ $(function () {
             user_id: currentUserId,
             priority: defaultPriority
         }, function(response) {
-            if (response.success) {
-                // showSuccessNotification('Tarea creada con éxito!');
-                const newTaskHtml = `
-                    <div class="kanban-task" data-task-id="${response.task_id}">
-                        <div class="task-header-flex">
-                            <div class="task-title-wrapper">
-                                <p>${taskName}</p>
-                            </div>
-                            <div class="task-options-dropdown dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item manage-tags" href="#" data-task-id="${response.task_id}">Etiquetas</a>
-                                    <a class="dropdown-item change-priority" href="#" data-task-id="${response.task_id}">Prioridad</a>
-                                    <a class="dropdown-item delete-task" href="#" data-task-id="${response.task_id}">Eliminar</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                form.closest('.kanban-column').find('.kanban-tasks').prepend(newTaskHtml);
+            if (response.success && response.task_html) {
+                form.closest('.kanban-column').find('.kanban-tasks').prepend(response.task_html);
                 form.find('input[name="title"]').val('');
                 $('.add-task-popup').hide();
             } else {
@@ -305,47 +309,8 @@ $(function () {
                 column_name: newColumnName
             }, function(response) {
                 if (response.success) {
-                    // showSuccessNotification('Columna creada con éxito!');
-
-                    const newColumnHtml = `
-                        <div class="kanban-column" data-column-id="${response.column_id}" data-column-order="${response.column_order}">
-                            <div class="kanban-column-header kanban-header-flex kanban-header-hover">
-                                <div class="kanban-column-title-container">
-                                    <span class="column-name-editable">${newColumnName}</span>
-                                    <input type="text" class="column-name-input form-control" value="${newColumnName}" style="display: none;">
-                                </div>
-                                <div class="column-options-dropdown dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fas fa-ellipsis-v"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item delete-column" href="#" data-column-id="${response.column_id}">Eliminar</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="add-task-container">
-                                <button class="add-task-btn" data-column-id="${response.column_id}">
-                                    <i class="fas fa-plus"></i> Agregar tarea
-                                </button>
-                                <div class="add-task-popup" style="display: none;">
-                                    <form class="add-task-form-inline">
-                                        <input type="hidden" name="column_id" value="${response.column_id}">
-                                        <div class="form-group">
-                                            <input type="text" name="title" class="form-control" placeholder="Escriba un nombre de tarea *" autofocus>
-                                        </div>
-                                        <ul class="task-options-list">
-                                            <li><a href="#"><i class="fas fa-calendar-alt"></i>Establecer fecha de vencimiento</a></li>
-                                            <li><a href="#"><i class="fas fa-user-plus"></i>Asignar</a></li>
-                                        </ul>
-                                        <button type="submit" class="btn btn-primary btn-block mt-3 add-task-final-btn">Agregar tarea</button>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="kanban-tasks"></div>
-                        </div>
-                    `;
-
-                    $('.kanban-board').find('.kanban-column-add').before(newColumnHtml);
+                    // Insertar el HTML de la columna generado por el backend
+                    $('.kanban-board').find('.kanban-column-add').before(response.column_html);
 
                     // Reinicializa Sortable en los nuevos contenedores de tareas
                     $('.kanban-tasks').last().each(function() {
@@ -354,7 +319,6 @@ $(function () {
                             animation: 150,
                         });
                     });
-                    
                     input.val('');
                     $('#add-column-input-container').hide();
                     $('#add-column-btn').show();
@@ -516,23 +480,36 @@ $(function () {
 
 
     // ----------------------------------------------------
-    // Lógica para mostrar/ocultar el menú de tarea
+    // Lógica para mostrar/ocultar el menú de tarea (dropdown de los 3 puntos)
     // ----------------------------------------------------
 
+    // Al hacer click en los 3 puntos, mostrar/ocultar el menú
     $(document).on('click', '.kanban-task .dropdown-toggle', function(e) {
         e.preventDefault();
         e.stopPropagation();
-
         var dropdown = $(this).closest('.task-options-dropdown');
+        // Cierra otros dropdowns abiertos
         $('.task-options-dropdown').not(dropdown).removeClass('is-open');
+        // Alterna el actual
         dropdown.toggleClass('is-open');
     });
 
-    $(document).on('click', function(e) {
+    // Solo cerrar el menú si se hace click fuera del dropdown
+    $(document).on('mousedown', function(e) {
+        // Si el click NO es dentro de un dropdown de tarea
         if (!$(e.target).closest('.task-options-dropdown').length) {
             $('.task-options-dropdown').removeClass('is-open');
         }
     });
+
+
+    // Eliminar cualquier handler de mouseenter/mouseleave/hover sobre .kanban-task o .task-options-dropdown
+    $(document).off('mouseenter mouseleave hover', '.kanban-task');
+    $(document).off('mouseenter mouseleave hover', '.task-options-dropdown');
+
+
+    // Parche: forzar que la clase .is-open solo se agregue/quite por click, nunca por hover
+    // (Si hay CSS que la agrega por hover, se debe eliminar esa regla en el CSS)
 
 
     // ----------------------------------------------------
@@ -548,30 +525,84 @@ $(function () {
         showInfoNotification('Funcionalidad de cambiar prioridad aún no implementada.');
     });
 
-    // Submenú de etiquetas al hacer hover
-    $(document).on('mouseenter', '.tag-submenu-trigger', function(e) {
-        var $submenu = $(this).find('.tag-submenu');
-        var $list = $submenu.find('.tag-submenu-list');
-        var taskId = $(this).data('task-id');
-        $submenu.show();
-        // Si ya está cargado, no recargar
-        if ($list.data('loaded')) return;
+
+
+    // Submenú de etiquetas al hacer hover, usando Popper.js para posicionamiento robusto
+
+    // --- NUEVO SUBMENÚ DE ETIQUETAS GLOBAL FLOTANTE ---
+    let tagSubmenuPopper = null;
+    let $tagSubmenu = null;
+    let tagSubmenuTaskId = null;
+
+    function createOrGetTagSubmenu() {
+        if (!$tagSubmenu) {
+        $tagSubmenu = $('<div id="global-tags-submenu" class="tag-submenu dropdown-menu show" style="display:none; position:absolute; min-width:220px; z-index: 50000;"><div class="tag-submenu-list"></div></div>');
+            $('body').append($tagSubmenu);
+            // Prevenir propagación SOLO si el target es el propio submenú, no los items internos
+            $tagSubmenu.on('mousedown click', function(e) {
+                if (e.target === this) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            });
+        }
+        return $tagSubmenu;
+    }
+
+    function showTagSubmenu(triggerElem, taskId) {
+    const $submenu = createOrGetTagSubmenu();
+    tagSubmenuTaskId = taskId;
+    // Guardar el triggerElem en data para refresco posterior
+    $submenu.data('trigger-elem', triggerElem);
+    window.lastTagSubmenuTriggerElem = triggerElem;
+    const $list = $submenu.find('.tag-submenu-list');
+    
+        $list.data('loaded', false);
         $list.html('<div class="text-center text-muted small py-2">Cargando...</div>');
-        // Obtener etiquetas disponibles y las asignadas a la tarea
-        $.get(base_url + 'kanban/get_all_tags', function(resp) {
+        $submenu.show();
+        // Popper.js para posicionar
+        if (tagSubmenuPopper) {
+            tagSubmenuPopper.destroy();
+        }
+        // Posición fija y centrada verticalmente en la ventana
+        $submenu.css({
+            position: 'fixed',
+            top: '50%',
+            left: '',
+            right: '',
+            transform: 'translateY(-50%)',
+            maxHeight: '',
+            overflowY: '',
+            zIndex: 50000
+        });
+        // Determinar si hay más espacio a la derecha o izquierda del trigger
+        var triggerRect = triggerElem.getBoundingClientRect();
+        var submenuWidth = 260; // Ajusta según tu diseño
+        var espacioDerecha = window.innerWidth - triggerRect.right;
+        var espacioIzquierda = triggerRect.left;
+        if (espacioDerecha >= submenuWidth) {
+            $submenu.css({ left: (triggerRect.right) + 'px', right: '' });
+        } else if (espacioIzquierda >= submenuWidth) {
+            $submenu.css({ left: (triggerRect.left - submenuWidth + 40) + 'px', right: '' });
+        } else {
+            // Si no cabe, forzar a la derecha y que se desborde
+            $submenu.css({ left: (triggerRect.right) + 'px', right: '' });
+        }
+        // No usar Popper
+        if (tagSubmenuPopper) {
+            tagSubmenuPopper.destroy();
+            tagSubmenuPopper = null;
+        }
+        // Cargar etiquetas vía AJAX
+        $.get(base_url + 'kanban/get_all_tags', { task_id: taskId }, function(resp) {
             if (resp.success && resp.tags) {
-                // Obtener las etiquetas ya asignadas a la tarea
-                var taskTags = [];
-                var $task = $('.kanban-task[data-task-id="' + taskId + '"]');
-                $task.find('.tags-container .tag').each(function() {
-                    taskTags.push($(this).text().trim());
-                });
+                var assignedTagIds = resp.assigned_tag_ids || [];
                 var html = '';
                 if (resp.tags.length === 0) {
                     html = '<div class="text-center text-muted small py-2">No hay etiquetas</div>';
                 } else {
                     resp.tags.forEach(function(tag) {
-                        var checked = taskTags.includes(tag.tag_name);
+                        var checked = assignedTagIds.includes(String(tag.tag_id)) || assignedTagIds.includes(tag.tag_id);
                         html += '<div class="tag-submenu-item d-flex align-items-center px-2 py-1" style="cursor:pointer;" data-tag-id="' + tag.tag_id + '" data-task-id="' + taskId + '">';
                         html += '<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:' + tag.color_code + ';margin-right:7px;"></span>';
                         html += '<span>' + tag.tag_name + '</span>';
@@ -580,22 +611,80 @@ $(function () {
                     });
                 }
                 $list.html(html).data('loaded', true);
+                
             } else {
                 $list.html('<div class="text-center text-danger small py-2">Error al cargar etiquetas</div>');
             }
         }, 'json');
+    }
+
+    function hideTagSubmenu() {
+        if ($tagSubmenu) {
+            $tagSubmenu.hide();
+            $tagSubmenu.find('.tag-submenu-list').data('loaded', false);
+        }
+        if (tagSubmenuPopper) {
+            tagSubmenuPopper.destroy();
+            tagSubmenuPopper = null;
+        }
+        tagSubmenuTaskId = null;
+    }
+
+    // Mostrar submenú al hacer hover/click en el ítem de etiquetas
+    $(document).on('mouseenter', '.tag-submenu-trigger', function (e) {
+        const taskId = $(this).data('task-id');
+    
+    showTagSubmenu(this, taskId);
     });
 
-    $(document).on('mouseleave', '.tag-submenu-trigger', function(e) {
-        var $submenu = $(this).find('.tag-submenu');
-        setTimeout(function() { $submenu.hide(); }, 200);
+    // Ocultar submenú al salir del ítem o al hacer click fuera
+    $(document).on('mouseleave', '.tag-submenu-trigger', function (e) {
+        // Si el mouse entra al submenú, no ocultar
+        if ($tagSubmenu && $(e.relatedTarget).closest('#global-tags-submenu').length) return;
+    
+    hideTagSubmenu();
+    });
+
+    // Ocultar submenú si el mouse sale del submenú flotante
+    $(document).on('mouseleave', '#global-tags-submenu', function (e) {
+        // Si el mouse entra al ítem trigger, no ocultar
+        if ($(e.relatedTarget).closest('.tag-submenu-trigger').length) return;
+        hideTagSubmenu();
+    });
+
+    // Ocultar submenú al hacer click fuera
+    $(document).on('mousedown', function (e) {
+        if ($tagSubmenu && $tagSubmenu.is(':visible')) {
+            if (!$(e.target).closest('#global-tags-submenu, .tag-submenu-trigger').length) {
+                hideTagSubmenu();
+            }
+        }
+    });
+
+    // Prevenir que clicks en el contenedor del submenú abran el modal de tarea, pero permite clicks en los ítems
+    $(document).on('mousedown click', '#global-tags-submenu', function (e) {
+        if (e.target === this) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
     });
 
     // Click en una etiqueta del submenú: asignar o quitar
     $(document).on('click', '.tag-submenu-item', function(e) {
-        e.stopPropagation();
-        var tagId = $(this).data('tag-id');
-        var taskId = $(this).data('task-id');
+    e.stopPropagation();
+    var tagId = $(this).data('tag-id');
+    var taskId = $(this).data('task-id');
+    var triggerElem = $('#global-tags-submenu').data('trigger-elem') || window.lastTagSubmenuTriggerElem || null;
+    
+
+// Handler directo sobre el submenú (no delegación)
+$('#global-tags-submenu').on('click', '.tag-submenu-item', function(e) {
+    
+});
+// DEBUG: handler global para clicks en el documento
+$(document).on('click', function(e) {
+    
+});
         var $item = $(this);
         // Detectar si ya está asignada
         var isAssigned = $item.find('i.fa-check').length > 0;
@@ -618,10 +707,12 @@ $(function () {
                         var tagName = $(this).text().trim();
                         if (tagNameToId[tagName]) currentTagIds.push(tagNameToId[tagName]);
                     });
+                    
                     toggleTagAssignment();
                 }
             }, 'json');
         } else {
+            
             toggleTagAssignment();
         }
         function toggleTagAssignment() {
@@ -631,46 +722,68 @@ $(function () {
                 newTagIds = newTagIds.filter(function(id) { return id != tagId; });
             } else {
                 // Agregar
-                newTagIds.push(tagId);
+                if (!newTagIds.includes(tagId)) newTagIds.push(tagId);
             }
-            // Obtener datos actuales de la tarea desde el DOM
+            // Asegurar que sea array
+            if (!Array.isArray(newTagIds)) newTagIds = [];
+            // Si está vacío, enviar array vacío
             var title = $task.find('.task-title-wrapper p').text().trim();
             var columnId = $task.closest('.kanban-column').data('column-id');
-            var priority = 'Medium'; // Por defecto, o puedes obtenerlo si está en el DOM
+            var priority = 'Medium';
             var notes = '';
-            // Si tienes campos de prioridad o notas en el DOM, obtén su valor real aquí
-            // Enviar todos los datos requeridos
-            $.post(base_url + 'kanban/update_task', {
-                task_id: taskId,
-                title: title,
-                column_id: columnId,
-                priority: priority,
-                notes: notes,
-                tags: newTagIds
-            }, function(resp) {
-                if (resp.success) {
-                    // Refrescar visualmente las etiquetas de la tarea
-                    $.get(base_url + 'kanban/get_all_tags', function(resp2) {
-                        if (resp2.success && resp2.tags) {
-                            var tagMap = {};
-                            resp2.tags.forEach(function(tag) { tagMap[tag.tag_id] = tag; });
-                            var html = '';
-                            newTagIds.forEach(function(id) {
-                                var tag = tagMap[id];
-                                if (tag) {
-                                    html += '<span class="tag" style="background:' + tag.color_code + ';" data-tag-id="' + tag.tag_id + '">' + tag.tag_name + '</span> ';
-                                }
-                            });
-                            $task.find('.tags-container').html(html);
-                        }
-                    }, 'json');
-                    // Refrescar el submenú
-                    $item.closest('.tag-submenu-list').removeData('loaded');
-                    $item.closest('.tag-submenu-list').html('<div class="text-center text-muted small py-2">Actualizando...</div>');
-                } else {
-                    showErrorNotification('No se pudo actualizar la tarea');
+            
+            $.ajax({
+                url: base_url + 'kanban/update_task',
+                method: 'POST',
+                data: {
+                    task_id: taskId,
+                    title: title,
+                    column_id: columnId,
+                    priority: priority,
+                    notes: notes,
+                    'tags[]': newTagIds // Forzar array
+                },
+                dataType: 'json',
+                traditional: false,
+                success: function(resp) {
+                    
+                    if (resp.success) {
+                        // Refrescar sólo la barra de etiquetas de la tarea
+                        $.get(base_url + 'kanban/get_all_tags', { task_id: taskId }, function(tagResp) {
+                            if (tagResp.success && tagResp.tags) {
+                                // 1. Actualizar barra de etiquetas
+                                var $tagsContainer = $task.find('.tags-container');
+                                var html = '';
+                                tagResp.tags.forEach(function(tag) {
+                                    if (tagResp.assigned_tag_ids.includes(String(tag.tag_id)) || tagResp.assigned_tag_ids.includes(tag.tag_id)) {
+                                        html += '<span class="tag" data-tag-id="' + tag.tag_id + '" style="background:' + tag.color_code + ';">' + tag.tag_name + '</span> ';
+                                    }
+                                });
+                                $tagsContainer.html(html);
+                                // 2. Actualizar los ticks del submenú directamente, sin recargar el submenú
+                                var assignedSet = new Set(tagResp.assigned_tag_ids.map(String));
+                                $('#global-tags-submenu .tag-submenu-item').each(function() {
+                                    var $item = $(this);
+                                    var tid = String($item.data('tag-id'));
+                                    var $check = $item.find('span.ml-auto');
+                                    if (assignedSet.has(tid)) {
+                                        if ($check.find('i.fa-check').length === 0) {
+                                            $check.html('<i class="fas fa-check text-success"></i>');
+                                        }
+                                    } else {
+                                        $check.html('');
+                                    }
+                                });
+                            }
+                        }, 'json');
+                    } else {
+                        showErrorNotification('No se pudo actualizar la tarea');
+                    }
+                },
+                error: function() {
+                    showAjaxErrorNotification('Error de comunicación con el servidor al actualizar la tarea.');
                 }
-            }, 'json');
+            });
         }
     });
 

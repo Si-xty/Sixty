@@ -88,3 +88,7 @@ $route['kanban/delete_task'] = 'KanbanController/delete_task';
 $route['kanban/get_task_details'] = 'KanbanController/get_task_details';
 $route['kanban/update_task'] = 'KanbanController/update_task';
 $route['kanban/get_all_tags'] = 'KanbanController/get_all_tags';
+$route['kanban/assign_tags_to_task'] = 'KanbanController/assign_tags_to_task';
+// $route['kanban/update_tag_color'] = 'KanbanController/update_tag_color';
+// $route['kanban/change_task_priority'] = 'KanbanController/change_task_priority';
+$route['kanban/get_column_tasks_html'] = 'KanbanController/get_column_tasks_html';

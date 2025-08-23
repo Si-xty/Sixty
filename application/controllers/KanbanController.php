@@ -153,7 +153,6 @@ class KanbanController extends CI_Controller {
         $column_name = $this->input->post('column_name');
 
         if (empty($board_id) || empty($column_name)) {
-            // Manejar el error: faltan datos
             $response = ['success' => false, 'message' => 'Faltan datos para crear la columna.'];
             $this->output->set_content_type('application/json')->set_output(json_encode($response));
             return;
@@ -170,17 +169,22 @@ class KanbanController extends CI_Controller {
         $column_id = $this->ColumnModel->create_column($data);
 
         if ($column_id) {
+            // Obtener la columna recién creada como objeto
+            $column = $this->ColumnModel->get_column($column_id);
+            $column->tasks = [];
+            // Renderizar la vista parcial de columna
+            $column_html = $this->load->view('kanban/_column', ['column' => $column], true);
             $response = [
-                'success' => true, 
-                'column_id' => $column_id, 
+                'success' => true,
+                'column_id' => $column_id,
                 'column_name' => $column_name,
-                'column_order' => $last_order
+                'column_order' => $last_order,
+                'column_html' => $column_html
             ];
         } else {
             $response = ['success' => false, 'message' => 'Error al crear la columna.'];
         }
 
-        // Envía la respuesta JSON
         $this->output->set_content_type('application/json')->set_output(json_encode($response));
     }
     
@@ -221,9 +225,11 @@ class KanbanController extends CI_Controller {
             if (empty($title) || empty($column_id)) {
                 $response = ['success' => false, 'message' => 'El título de la tarea y el ID de la columna son obligatorios.'];
             } else {
-                $last_task = $this->db->select_max('task_order')->where('column_id', $column_id)->get('kanban_tasks')->row();
-                $new_order = ($last_task->task_order !== NULL) ? $last_task->task_order + 1 : 0;
-    
+
+                // Obtener el menor task_order de la columna
+                $first_task = $this->db->select_min('task_order')->where('column_id', $column_id)->get('kanban_tasks')->row();
+                $new_order = ($first_task->task_order !== NULL) ? $first_task->task_order - 1 : 0;
+
                 $data = [
                     'user_id' => $user_id,
                     'column_id' => $column_id,
@@ -232,14 +238,23 @@ class KanbanController extends CI_Controller {
                     'priority' => $priority,
                     'task_order' => $new_order
                 ];
-                
+
                 $task_id = $this->TaskModel->create_task($data);
-    
+
                 if ($task_id) {
                     if (!empty($tags)) {
-                            $this->TagModel->assign_tags_to_task($task_id, $tags); // Assign tags if provided
+                        $this->TagModel->assign_tags_to_task($task_id, $tags);
                     }
-                    $response = ['success' => true, 'task_id' => $task_id];
+                    // Obtener la tarea recién creada con tags
+                    $task = $this->TaskModel->get_task($task_id);
+                    $task->tags = $this->TagModel->get_tags_by_task($task_id);
+                    // Renderizar la vista parcial
+                    $task_html = $this->load->view('kanban/_task_card', ['task' => $task], true);
+                    $response = [
+                        'success' => true,
+                        'task_id' => $task_id,
+                        'task_html' => $task_html
+                    ];
                 } else {
                     $response = ['success' => false, 'message' => 'Error al crear la tarea.'];
                 }
@@ -253,19 +268,16 @@ class KanbanController extends CI_Controller {
      */
     public function update_task_position() {
         if ($this->input->is_ajax_request()) {
-            $task_id = $this->input->post('task_id');
-            $new_column_id = $this->input->post('new_column_id');
-            $new_order = $this->input->post('new_order');
-
-            if (!isset($task_id) || !isset($new_column_id) || !isset($new_order)) {
-                $response = ['success' => false, 'message' => 'Faltan parámetros para actualizar la posición de la tarea.'];
+            $column_id = $this->input->post('column_id');
+            $ordered_task_ids = $this->input->post('ordered_task_ids');
+            if (!is_array($ordered_task_ids) || !$column_id) {
+                $response = ['success' => false, 'message' => 'Datos de orden no válidos.'];
             } else {
-                $result = $this->TaskModel->update_task_position($task_id, $new_column_id, $new_order);
-    
+                $result = $this->TaskModel->update_tasks_order_in_column($column_id, $ordered_task_ids);
                 if ($result) {
                     $response = ['success' => true];
                 } else {
-                    $response = ['success' => false, 'message' => 'Error al actualizar la posición de la tarea.'];
+                    $response = ['success' => false, 'message' => 'Error al actualizar el orden de las tareas.'];
                 }
             }
             $this->output->set_content_type('application/json')->set_output(json_encode($response));
@@ -368,6 +380,10 @@ class KanbanController extends CI_Controller {
         $priority   = $this->input->post('priority');
         $column_id  = $this->input->post('column_id');
         $tags       = $this->input->post('tags'); // array de tag_id[]
+        if ($tags === null) {
+            // Si no se envía el parámetro, forzar array vacío
+            $tags = [];
+        }
 
         $data = [
             'title' => $title,
@@ -376,11 +392,12 @@ class KanbanController extends CI_Controller {
             'column_id' => $column_id
         ];
         $update_status = $this->TaskModel->update_task($task_id, $data);
-        // Actualizar etiquetas
+        $tags_updated = false;
         if (is_array($tags)) {
-            $this->TagModel->assign_tags_to_task($task_id, $tags);
+            $tags_updated = $this->TagModel->assign_tags_to_task($task_id, $tags);
         }
-        if ($update_status) {
+        // Si se actualizó la tarea o las etiquetas, considerar éxito
+        if ($update_status || $tags_updated) {
             $response = ['success' => true];
         } else {
             $response = ['success' => false, 'message' => 'No se pudo actualizar la tarea'];
@@ -394,13 +411,91 @@ class KanbanController extends CI_Controller {
     public function get_all_tags() {
         if ($this->input->is_ajax_request()) {
             $tags = $this->TagModel->get_all_tags();
+            $task_id = $this->input->get('task_id');
+            $assigned_tag_ids = [];
+            if ($task_id) {
+                $assigned_tags = $this->TagModel->get_tags_by_task($task_id);
+                foreach ($assigned_tags as $tag) {
+                    $assigned_tag_ids[] = $tag->tag_id;
+                }
+            }
             $response = [
                 'success' => true,
-                'tags' => $tags
+                'tags' => $tags,
+                'assigned_tag_ids' => $assigned_tag_ids
             ];
             $this->output->set_content_type('application/json')->set_output(json_encode($response));
         } else {
             show_404();
         }
+    }
+
+    /**
+     * Actualiza el color de una etiqueta (AJAX)
+     */
+    public function update_tag_color() {
+        if ($this->input->is_ajax_request()) {
+            $tag_id = $this->input->post('tag_id');
+            $color_code = $this->input->post('color_code');
+            if (empty($tag_id) || empty($color_code)) {
+                $response = ['success' => false, 'message' => 'Faltan datos para actualizar el color.'];
+            } else {
+                $result = $this->TagModel->update_tag_color($tag_id, $color_code);
+                if ($result) {
+                    $response = ['success' => true];
+                } else {
+                    $response = ['success' => false, 'message' => 'No se pudo actualizar el color.'];
+                }
+            }
+            $this->output->set_content_type('application/json')->set_output(json_encode($response));
+        } else {
+            show_404();
+        }
+    }
+
+    /**
+     * Devuelve el HTML parcial de una tarea (para refresco instantáneo en el frontend)
+     */
+    public function get_task_card_html() {
+        $task_id = $this->input->post('task_id');
+        $task = $this->TaskModel->get_task($task_id);
+        if ($task) {
+            // Obtener los tags actualizados
+            $task->tags = $this->TagModel->get_tags_by_task($task_id);
+            $task_html = $this->load->view('kanban/_task_card', ['task' => $task], true);
+            $response = [
+                'success' => true,
+                'task_html' => $task_html
+            ];
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Tarea no encontrada.'
+            ];
+        }
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
+    }
+
+    /**
+     * Devuelve el HTML de todas las tareas de una columna (para refresco instantáneo en el frontend)
+     */
+    public function get_column_tasks_html() {
+        $column_id = $this->input->post('column_id');
+        // Obtener las tareas de la columna
+        $tasks = $this->TaskModel->get_tasks_by_column($column_id);
+        // Para cada tarea, obtener sus tags
+        foreach ($tasks as $task) {
+            $task->tags = $this->TagModel->get_tags_by_task($task->task_id);
+        }
+        // Renderizar solo el bloque de tareas
+        $tasks_html = '';
+        foreach ($tasks as $task) {
+            $tasks_html .= $this->load->view('kanban/_task_card', ['task' => $task], true);
+        }
+        $response = [
+            'success' => true,
+            'tasks_html' => $tasks_html
+        ];
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
     }
 }

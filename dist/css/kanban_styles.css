@@ -1,3 +1,23 @@
+/* Color azul para los 3 puntitos de los dropdowns (igual que el botón Agregar tarea) */
+.kanban-ellipsis {
+    color: #0063c7 !important;
+    opacity: 1;
+    transition: color 0.2s;
+}
+.kanban-ellipsis:hover {
+    color: #0063c7 !important;
+}
+/* Posicionamiento inteligente del submenú de etiquetas */
+.tag-submenu.open-up {
+    top: auto !important;
+    bottom: 100% !important;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.12);
+}
+.tag-submenu.open-left {
+    left: auto !important;
+    right: 100% !important;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.12);
+}
 /* Estilos para el contenedor del tablero Kanban */
 .kanban-board {
     min-height: calc(100vh - 114px);
@@ -138,9 +158,6 @@
     align-items: center;
     transition: color 0.2s ease;
 }
-.task-options-list li a:hover {
-    color: #007bff;
-}
 
 .task-options-list li a i {
     margin-right: 8px;
@@ -240,18 +257,43 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
+
+/* El menú de opciones de tarea solo se muestra con .is-open */
 .task-options-dropdown {
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-}
-.kanban-task:hover .task-options-dropdown {
-    visibility: visible;
-    opacity: 1;
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 160px;
+    z-index: 10;
 }
 .task-options-dropdown.is-open {
-    visibility: visible;
+    display: block;
+}
+
+/* Mostrar los 3 puntitos solo al hacer hover sobre la tarea */
+.kanban-task .dropdown-toggle {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.kanban-task:hover .dropdown-toggle,
+.dropdown-toggle:focus {
     opacity: 1;
+    pointer-events: auto;
+}
+
+/* El menú de opciones de tarea solo se muestra con .is-open */
+.task-options-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 160px;
+    z-index: 10;
+}
+.task-options-dropdown.is-open {
+    display: block;
 }
 
 
