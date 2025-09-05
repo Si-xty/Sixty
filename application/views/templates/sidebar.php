@@ -59,12 +59,14 @@
                   <p>...</p>
                 </a>
               </li>
+              <?php if($this->session->userdata('authenticated') == '1') { ?>
               <li class="nav-item">
-                <a href="<?= base_url('proximamente')?>" class="nav-link">
+                <a href="#" id="sendMailjetBtn" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>...</p>
+                  <p>Mailjet</p>
                 </a>
               </li>
+              <?php } ?>
               <?php if($this->session->userdata('authenticated') == '1') { ?>
               <li class="nav-item">
                 <a href="#" id="wol-btn" class="nav-link">

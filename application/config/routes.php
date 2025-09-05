@@ -92,3 +92,6 @@ $route['kanban/assign_tags_to_task'] = 'KanbanController/assign_tags_to_task';
 // $route['kanban/update_tag_color'] = 'KanbanController/update_tag_color';
 // $route['kanban/change_task_priority'] = 'KanbanController/change_task_priority';
 $route['kanban/get_column_tasks_html'] = 'KanbanController/get_column_tasks_html';
+
+//Mailjet
+$route['mailjet'] = 'MailController/index';

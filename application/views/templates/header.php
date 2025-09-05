@@ -6,6 +6,8 @@
   <meta name="google-adsense-account" content="ca-pub-2719792487651208">
   <title>Sixty Project</title>
 
+  <link rel="icon" href="<?= base_url('favicon.png') ?>" type="image/x-icon">
+
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
@@ -38,5 +40,5 @@
 
   <!-- Preloader -->
   <div class="preloader flex-column justify-content-center align-items-center">
-    <img class="animation__shake" src="<?= base_url('dist/img/AdminLTELogo.png') ?>" alt="AdminLTELogo" height="60" width="60">
+    <img class="animation__shake" src="<?= base_url('favicon.png') ?>" alt="SixtyLogo" height="60" width="60">
   </div>

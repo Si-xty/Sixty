@@ -18,15 +18,7 @@ class GoogleController extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        log_message('debug', 'DEBUG: GoogleController constructor - Antes de cargar Sendgrid_mailer.');
-        $this->load->library('sendgrid_mailer');
         $this->load->library('mailjet_mailer');
-        log_message('debug', 'DEBUG: GoogleController constructor - Después de cargar Sendgrid_mailer.');
-        if (isset($this->Sendgrid_mailer)) {
-            log_message('debug', 'DEBUG: GoogleController constructor - $this->Sendgrid_mailer EXISTE después de la carga.');
-        } else {
-            log_message('error', 'DEBUG: GoogleController constructor - $this->Sendgrid_mailer NO EXISTE después de la carga.');
-        }
         $this->load->library('session');
         $this->load->config('google');
         $this->load->model('UserModel');
@@ -86,35 +78,16 @@ class GoogleController extends CI_Controller
                         $new_user_id = $this->UserModel->registerGoogleUser($user_data_to_save);
                         $user = $this->UserModel->getUserById($new_user_id);
 
-                        if ($user && !empty($user->email)) { 
-
+                        // Enviar correo de bienvenida usando el template HTML
+                        if ($user && !empty($user->email)) {
                             $subject = '¡Bienvenido a Sixty!';
-                            $html_body = '
-                                <html>
-                                <head>
-                                    <title>Bienvenido a Sixty</title>
-                                </head>
-                                <body>
-                                    <h1>¡Hola, ' . htmlspecialchars($user->full_name) . '!</h1>
-                                    <p>Gracias por registrarte en Sixty.</p>
-                                    <p>Estamos emocionados de tenerte a bordo. ¡Explora todas nuestras funciones!</p>
-                                    <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
-                                    <p>Saludos cordiales,<br>El equipo de Sixty</p>
-                                </body>
-                                </html>
-                            ';
-                            $text_body = strip_tags($html_body);
-                            $text_body = html_entity_decode($text_body, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                            $text_body = preg_replace('/\s+/', ' ', $text_body);
-                            $text_body = trim($text_body);
-                            $text_body = "¡Hola, " . $user->full_name . "! Gracias por registrarte en Sixty.cl. ¡Explora nuestras funciones!";
+                            $template_path = APPPATH . 'views/emails/welcome_email.html';
+                            $html_body = file_exists($template_path) ? file_get_contents($template_path) : '';
+                            $html_body = str_replace('{{name}}', htmlspecialchars($user->full_name), $html_body);
+                            $text_body = 'Hola ' . $user->full_name . ', gracias por registrarte en Sixty. Estamos felices de tenerte en la comunidad.';
 
-
-                            // if ($this->mailjet_mailer->send_email($user->email, $user->full_name, $subject, $html_body, $text_body)) {
-                            //     log_message('info', 'Correo de bienvenida (API) enviado a: ' . $user->email);
-                            // } else {
-                            //     log_message('error', 'Fallo el envio de correo de bienvenida (API) a: ' . $user->email);
-                            // }            
+                            $this->load->library('mailjet_mailer');
+                            $this->mailjet_mailer->send_email($user->email, $user->full_name, $subject, $html_body, $text_body);
                         }
                     } else {
                         $update_data = [

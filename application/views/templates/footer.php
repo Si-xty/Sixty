@@ -75,5 +75,7 @@
 
 <script src="<?= base_url('dist/js/kanban.js') ?>?v=<?= time(); ?>"></script>
 
+<script src="<?= base_url('dist/js/mailjet.js') ?>?v=<?= time(); ?>"></script>
+
 </body>
 </html>
