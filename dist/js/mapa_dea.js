@@ -364,7 +364,7 @@ function eliminarPuntoCercano(clickX, clickY) {
             // modo: 'crear_area' -> tipo: 'area'
             // modo: 'dea'        -> tipo: 'dea'
             // modo: 'lugar'      -> tipo: 'lugar'
-            let tipoPermitido = (modoActual === 'crear_area') ? 'a' : modoActual;
+            let tipoPermitido = (modoActual === 'crear_area') ? 'area' : modoActual;
 
             if (p.tipo !== tipoPermitido) {
                 continue; // Ignoramos este punto porque no coincide con la herramienta actual
@@ -488,13 +488,13 @@ function redibujarMapa() {
         ctx.fill();
     }
 
-    // 5. Dibujar líneas DEA -> Edificio para coberturas individuales >= 99%
-    if (conexionesDeaEdificio.length > 0) {
+    // 5. Dibujar flechas DEA -> Edificio solo si los DEAs están visibles
+    if (visibilidad.dea && conexionesDeaEdificio.length > 0) {
         ctx.strokeStyle = '#ff0000';
         ctx.lineWidth = 2;
         conexionesDeaEdificio.forEach(con => {
             dibujarFlecha(con.deaX, con.deaY, con.cx, con.cy, {
-                color: '#ea00ffff',
+                color: '#ff0000',
                 lineWidth: 2,
                 headLength: 12,
                 headAngleDeg: 30
