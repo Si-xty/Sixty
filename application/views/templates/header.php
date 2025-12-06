@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-adsense-account" content="ca-pub-2719792487651208">
-  <title>Sixty Project</title>
+  <!-- <title>Sixty Project</title> -->
+  <title><?php echo isset($titulo) ? $titulo : 'Sixty'; ?></title>
 
   <link rel="icon" href="<?= base_url('favicon.png') ?>" type="image/x-icon">
 
@@ -16,6 +17,7 @@
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Tempusdominus Bootstrap 4 -->
   <link rel="stylesheet" href="<?= base_url('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') ?>">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <!-- iCheck -->
   <link rel="stylesheet" href="<?= base_url('plugins/icheck-bootstrap/icheck-bootstrap.min.css') ?>">
   <!-- JQVMap -->
@@ -34,6 +36,7 @@
   
   <link rel="stylesheet" href="<?= base_url('dist/css/kanban_styles.css?v=' . time()) ?>">
   <link rel="stylesheet" href="<?= base_url('dist/css/styles.css?v=' . time()) ?>">
+  <link rel="stylesheet" href="<?= base_url('dist/css/mapa_styles.css?v=' . time()) ?>">
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
