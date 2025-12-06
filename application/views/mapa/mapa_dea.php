@@ -47,9 +47,9 @@
 
                         <hr>
 
-                        <button class="btn btn-success btn-block mb-2 font-weight-bold" onclick="calcularCobertura()">
+                        <!-- <button class="btn btn-success btn-block mb-2 font-weight-bold" onclick="calcularCobertura()">
                             ▶ CALCULAR COBERTURA
-                        </button>
+                        </button> -->
                         
                         <button class="btn btn-secondary btn-block btn-sm" onclick="limpiarMapa()">
                             ⚠️ Limpiar Mapa Completo

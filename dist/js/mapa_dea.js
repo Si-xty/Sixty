@@ -40,6 +40,9 @@ let visibilidad = {
     lugar: true  // Puntos visibles por defecto
 };
 
+// Conexiones gráficas DEA -> Edificio (cuando cobertura individual >= 99%)
+let conexionesDeaEdificio = []; // {deaId, deaX, deaY, edificioNombre, cx, cy}
+
 // ==========================================
 // 3. INICIALIZACIÓN
 // ==========================================
@@ -188,6 +191,8 @@ function finalizarPoligono() {
             nuevoArea.id = res.id;
             puntos.push(nuevoArea);
             construccionPoligono = []; // Limpiamos temporal
+            // Recalcular cobertura y redibujar líneas
+            calcularCobertura();
             redibujarMapa();
         }
     });
@@ -269,6 +274,11 @@ function agregarPunto(x, y) {
                     delete puntoEnArray.guardando; // Quitamos la marca de "guardando"
                     // No hace falta redibujar, visualmente es idéntico
                 }
+                // Si agregamos un DEA o un Área, recalculamos para mostrar conexiones
+                if (modoActual === 'dea' || modoActual === 'crear_area') {
+                    calcularCobertura();
+                    redibujarMapa();
+                }
             }
         },
         error: function() {
@@ -321,7 +331,8 @@ function cargarPuntosDeBD() {
         // Debug: Cuántas áreas detectamos
         let areasDetectadas = puntos.filter(p => p.tipo === 'area').length;
         console.log(`✅ Procesado: ${puntos.length} elementos. (Áreas detectadas: ${areasDetectadas})`);
-        
+        // Tras cargar, calcular cobertura para dibujar conexiones y luego redibujar
+        calcularCobertura();
         redibujarMapa();
     });
 }
@@ -392,6 +403,8 @@ function eliminarPuntoCercano(clickX, clickY) {
         // Llamada al servidor para eliminar
             $.post(CONFIG.baseUrl + 'ajax_eliminar', {id: p.id}, function(res){
                 puntos.splice(index, 1);
+                // Recalcular y redibujar tras eliminar
+                calcularCobertura();
                 redibujarMapa();
             });
         // let nombreTipo = (p.tipo === 'area') ? "el Edificio" : p.nombre;
@@ -409,6 +422,7 @@ function limpiarPorTipo(tipoObjetivo) {
         $.post(CONFIG.baseUrl + 'ajax_limpiar', { tipo: tipoObjetivo }, function(response) {
             // Filtro visual instantáneo
             puntos = puntos.filter(p => p.tipo !== tipoObjetivo);
+            calcularCobertura();
             redibujarMapa();
             document.getElementById('resultados').innerHTML = `<small class="text-success">${nombre} eliminados.</small>`;
         }, 'json');
@@ -419,6 +433,7 @@ function limpiarMapa() {
     if(confirm("⚠️ ¿ESTÁS SEGURO?\n\nEsto borrará TODO el mapa (DEAs y Puntos).")) {
         $.post(CONFIG.baseUrl + 'ajax_limpiar', {}, function(){
             puntos = [];
+            calcularCobertura();
             redibujarMapa();
             document.getElementById('resultados').innerHTML = "Mapa reiniciado por completo.";
         }, 'json');
@@ -472,6 +487,57 @@ function redibujarMapa() {
         ctx.fillStyle = "green";
         ctx.fill();
     }
+
+    // 5. Dibujar líneas DEA -> Edificio para coberturas individuales >= 99%
+    if (conexionesDeaEdificio.length > 0) {
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 2;
+        conexionesDeaEdificio.forEach(con => {
+            dibujarFlecha(con.deaX, con.deaY, con.cx, con.cy, {
+                color: '#ea00ffff',
+                lineWidth: 2,
+                headLength: 12,
+                headAngleDeg: 30
+            });
+        });
+    }
+}
+
+// Dibuja una flecha desde (x1,y1) hasta (x2,y2)
+function dibujarFlecha(x1, y1, x2, y2, opts) {
+    const color = (opts && opts.color) || '#ff0000';
+    const lw = (opts && opts.lineWidth) || 2;
+    const headLength = (opts && opts.headLength) || 12; // px
+    const headAngleDeg = (opts && opts.headAngleDeg) || 30; // grados
+
+    // Línea principal
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // Calcular dirección
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const angle = Math.atan2(dy, dx);
+    const headAngle = headAngleDeg * Math.PI / 180;
+
+    // Puntos del triángulo de la punta
+    const xA = x2 - headLength * Math.cos(angle - headAngle);
+    const yA = y2 - headLength * Math.sin(angle - headAngle);
+    const xB = x2 - headLength * Math.cos(angle + headAngle);
+    const yB = y2 - headLength * Math.sin(angle + headAngle);
+
+    // Dibujo de la punta (rellena)
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(xA, yA);
+    ctx.lineTo(xB, yB);
+    ctx.closePath();
+    ctx.fill();
 }
 
 function dibujarArea(area) {
@@ -524,7 +590,7 @@ function dibujarArea(area) {
 
 function dibujarLugar(p) {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI); // Radio visual de 5px
+    ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
     ctx.fillStyle = "blue";
     ctx.fill();
     ctx.strokeStyle = "white";
@@ -539,36 +605,19 @@ function dibujarLugar(p) {
 
 function dibujarDEA(p) {
     // 1. Dibujar el centro del DEA (Cuadrado rojo)
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "#00aa00";
     ctx.fillRect(p.x - 5, p.y - 5, 10, 10);
     
-    ctx.strokeStyle = "black";
+    // ctx.strokeStyle = "black";
+    ctx.strokeStyle = "#006600";
     ctx.lineWidth = 1;
     ctx.strokeRect(p.x - 5, p.y - 5, 10, 10);
     
     // Etiqueta de texto
     ctx.font = "bold 12px Arial";
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "#006600";
     ctx.fillText(p.nombre, p.x, p.y - 10);
-
-    // 2. DIBUJAR EL RADIO DE COBERTURA (Semitransparente)
-    
-    // Calculamos cuánto mide el radio de 150m en píxeles.
-    // Usamos elipse por si la imagen no es cuadrada (distinta escala X e Y)
-    let radioVisX = CONFIG.radioDea * scaleX;
-    let radioVisY = CONFIG.radioDea * scaleY;
-
-    ctx.beginPath();
-    ctx.ellipse(p.x, p.y, radioVisX, radioVisY, 0, 0, 2 * Math.PI);
-    
-    // Relleno transparente (Rojo al 25% de opacidad)
-    ctx.fillStyle = "rgba(255, 0, 0, 0.25)"; 
-    ctx.fill();
-    
-    // Borde del radio (Rojo al 80% de opacidad)
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgba(255, 0, 0, 0.8)";
-    ctx.stroke();
+    // Nota: Se elimina la elipse de cobertura; ahora las conexiones se dibujan en redibujarMapa
 }
 
 // ==========================================
@@ -576,6 +625,8 @@ function dibujarDEA(p) {
 // ==========================================
 
 function calcularCobertura() {
+    // Reiniciar conexiones antes de nuevo cálculo
+    conexionesDeaEdificio = [];
     // 1. Obtenemos las listas
     let areas = puntos.filter(p => p.tipo === 'area');
     let deas = puntos.filter(p => p.tipo === 'dea');
@@ -623,9 +674,9 @@ function calcularCobertura() {
             mensaje = "CUMPLE (100% Cubierto)";
         }
 
-        // Para el CSV, dividimos el porcentaje entre 100 para obtener el decimal (Ej: 0.89)
-        let valorDecimal = valorPorcentaje / 100;
-        listaValores.push(valorDecimal.toFixed(2)); 
+        // CSV binario: 1 si cubre >= 99%, 0 si no.
+        let cumpleBinario = (resultado.porcentajeTotal >= 99.0) ? 1 : 0;
+        listaValores.push(cumpleBinario);
         // ---------------------------------------
 
         // MOSTRAR EN PANTALLA (Usamos valorPorcentaje para que se vea como %)
@@ -645,6 +696,28 @@ function calcularCobertura() {
             divRes.innerHTML += `<small style="color:#666">No hay DEAs cubriendo este edificio.</small>`;
         }
         divRes.innerHTML += `</div>`;
+
+        // Registrar conexiones DEA -> Edificio cuando la cobertura individual >= 99%
+        if (resultado.detalleIndividual.length > 0) {
+            // Calcular centroide del edificio para trazar la línea
+            let totalX = 0, totalY = 0;
+            verts.forEach(v => { totalX += v.x; totalY += v.y; });
+            let cx = totalX / verts.length;
+            let cy = totalY / verts.length;
+
+            resultado.detalleIndividual.forEach(item => {
+                if (item.cobertura >= 99.5) {
+                    conexionesDeaEdificio.push({
+                        deaId: item.id,
+                        deaX: item.x,
+                        deaY: item.y,
+                        edificioNombre: edificio.nombre,
+                        cx: cx,
+                        cy: cy
+                    });
+                }
+            });
+        }
     });
 
     // Llenar la caja CSV con los valores YA convertidos a decimales
@@ -755,7 +828,10 @@ function calcularCoberturaUnion(verticesEdificio, listaTodosDeas) {
         let porcentajeEsteDea = (pixelesEsteDea / puntosTotalesEdificio) * 100;
         
         return {
+            id: dea.id,
             nombre: dea.nombre,
+            x: dea.x,
+            y: dea.y,
             cobertura: porcentajeEsteDea
         };
     });
@@ -887,6 +963,9 @@ function guardarEdicionNombre() {
     let area = puntos.find(p => p.id == idArea);
     if (area) {
         area.nombre = nuevoNombre;
+        // Si cambia el nombre del edificio, solo redibujamos texto,
+        // pero mantenemos coherencia de líneas recalculando cobertura
+        calcularCobertura();
         redibujarMapa();
     }
 
