@@ -95,3 +95,8 @@ $route['kanban/get_column_tasks_html'] = 'KanbanController/get_column_tasks_html
 
 //Mailjet
 $route['mailjet'] = 'MailController/index';
+
+
+//Mapa Dea
+$route['mapa'] = 'MapaController/index';
+$route['mapa/(:any)'] = 'MapaController/$1';

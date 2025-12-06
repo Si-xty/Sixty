@@ -97,6 +97,16 @@
               </a>
             </li>
           <?php } ?>
+          <?php if($this->session->userdata('authenticated') == 'tester' || $this->session->userdata('authenticated') == '1') { ?>
+            <li class="nav-item">
+              <a href="<?= base_url('mapa') ?>" class="nav-link">
+                <i class="nav-icon fas fa-columns"></i>
+                <p>
+                  Mapa DEA
+                </p>
+              </a>
+            </li>
+          <?php } ?>
           <!-- <li class="nav-header">MISCELLANEOUS</li>
           <li class="nav-item">
             <a href="iframe.html" class="nav-link">

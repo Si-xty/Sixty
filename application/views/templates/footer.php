@@ -16,6 +16,7 @@
 
 <!-- jQuery -->
 <script src="<?= base_url('plugins/jquery/jquery.min.js') ?>"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 <!-- jQuery UI 1.11.4 -->
 <script src="<?= base_url('plugins/jquery-ui/jquery-ui.min.js') ?>"></script>
@@ -48,7 +49,9 @@
 <!-- AdminLTE for demo purposes -->
 <!-- <script src="<?= base_url('dist/js/demo.js') ?>"></script> -->
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<!-- <script src="<?= base_url('dist/js/pages/dashboard.js') ?>"></script> -->
+<?php if ($this->router->fetch_class() == 'MainController'): ?>    
+    <script src="<?= base_url('dist/js/pages/dashboard.js') ?>"></script>
+<?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 
@@ -76,6 +79,10 @@
 <script src="<?= base_url('dist/js/kanban.js') ?>?v=<?= time(); ?>"></script>
 
 <script src="<?= base_url('dist/js/mailjet.js') ?>?v=<?= time(); ?>"></script>
+
+<?php if ($this->router->fetch_class() == 'MapaController'): ?>    
+    <script src="<?= base_url('dist/js/mapa_dea.js') ?>?v=<?= time(); ?>"></script>
+<?php endif; ?>
 
 </body>
 </html>
