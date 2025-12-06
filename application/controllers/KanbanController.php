@@ -33,6 +33,7 @@ class KanbanController extends CI_Controller {
     public function index() {
         $user_id = $this->session->userdata('user_authenticated');
         $data['boards'] = $this->BoardModel->get_user_boards($user_id);
+        $data['titulo'] = 'Kanban Board';
 
         // Si el usuario tiene tableros, cargar el primer tablero por defecto
         // if (!empty($data['boards'])) {
@@ -48,7 +49,7 @@ class KanbanController extends CI_Controller {
         // }
 
         // Cargar la vista principal del Kanban
-        $this->load->view('templates/header');
+        $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar');
         $this->load->view('kanban/navbar_boards');
         $this->load->view('kanban/kanban_board_list', $data);
@@ -64,6 +65,7 @@ class KanbanController extends CI_Controller {
             $update_data = ['last_modified' => date('Y-m-d H:i:s')];
             $this->BoardModel->update_board($board_id, $user_id, $update_data);
 
+            $data['titulo'] = $board->board_name;
             $data['boards'] = $this->BoardModel->get_user_boards($user_id);
             
             // 1. Obtener las columnas
@@ -84,7 +86,7 @@ class KanbanController extends CI_Controller {
             $data['current_board'] = $board;
             $data['currentUserId'] = $user_id;
 
-            $this->load->view('templates/header');
+            $this->load->view('templates/header', $data);
             $this->load->view('templates/sidebar');
             $this->load->view('kanban/navbar_board', $data);
             $this->load->view('kanban/kanban_main', $data); // Pasa los datos combinados a la vista

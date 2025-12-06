@@ -21,7 +21,8 @@ class MapaController extends CI_Controller {
 
     public function index() {
         // Carga la vista principal
-        $this->load->view('templates/header');
+        $data['titulo'] = 'Mapa DEA';
+        $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar');
         $this->load->view('templates/navbar');
         $this->load->view('mapa/mapa_dea');

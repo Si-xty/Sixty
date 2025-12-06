@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-adsense-account" content="ca-pub-2719792487651208">
-  <!-- <title>Sixty Project</title> -->
   <title><?php echo isset($titulo) ? $titulo : 'Sixty'; ?></title>
 
   <link rel="icon" href="<?= base_url('favicon.png') ?>" type="image/x-icon">
@@ -38,10 +37,18 @@
   <link rel="stylesheet" href="<?= base_url('dist/css/styles.css?v=' . time()) ?>">
   <link rel="stylesheet" href="<?= base_url('dist/css/mapa_styles.css?v=' . time()) ?>">
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
-<div class="wrapper">
+<!-- <body class="hold-transition sidebar-mini layout-fixed"> -->
+<body class="<?php echo isset($body) ? $body : 'hold-transition sidebar-mini layout-fixed'; ?>">
+<?php
+  $is_login_page = isset($body) && strpos($body, 'login-page') !== false;
+  if (!$is_login_page) {
+      echo '<div class="wrapper">';
+  }
+?>
 
   <!-- Preloader -->
+  <?php if (!$is_login_page): ?>
   <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__shake" src="<?= base_url('favicon.png') ?>" alt="SixtyLogo" height="60" width="60">
   </div>
+  <?php endif; ?>

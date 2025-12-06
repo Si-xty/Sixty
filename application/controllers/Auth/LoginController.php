@@ -28,7 +28,11 @@ class LoginController extends CI_Controller
     
     public function index()
     {
-        $this->load->view('auth/login.php');
+        $data['titulo'] = 'Iniciar Sesión';
+        $data['body'] = 'hold-transition login-page';
+        $this->load->view('templates/header', $data);
+        $this->load->view('auth/login');
+        $this->load->view('templates/footer');
     }
 
     public function a()
@@ -58,7 +62,9 @@ class LoginController extends CI_Controller
                     'user' => $user->user,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
-                    'rol' => $user->rol
+                    'rol' => $user->rol,
+                    'email' => isset($user->email) ? $user->email : null,
+                    'picture' => isset($user->picture) && !empty($user->picture) ? $user->picture : null
                 ];
 
                 $this->session->set_userdata('authenticated', $user->rol);

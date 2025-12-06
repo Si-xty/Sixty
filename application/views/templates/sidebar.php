@@ -12,7 +12,13 @@
         <!-- Sidebar user panel (optional) -->
         <div class="user-panel mt-3 pb-3 d-flex">
           <div class="image">
-            <img src="<?= $this->session->userdata('auth_user')['picture']; ?>" class="img-circle elevation-2" alt="User Image">
+            <?php 
+              $auth = $this->session->userdata('auth_user');
+              $userPicture = isset($auth['picture']) && !empty($auth['picture']) 
+                ? $auth['picture'] 
+                : base_url('favicon.png'); // Placeholder seguro si no hay foto
+            ?>
+            <img src="<?= $userPicture; ?>" class="img-circle elevation-2" alt="User Image">
           </div>
           <div class="info">
             <a href="<?= base_url('profile')?>" class="d-block">

@@ -23,6 +23,6 @@ class MainController extends CI_Controller
 
     public function index()
     {
-        $this->load->view('auth/login');
+        redirect(base_url('login'));
     }
 }

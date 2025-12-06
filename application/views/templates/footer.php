@@ -11,8 +11,49 @@
     <!-- Control sidebar content goes here -->
   </aside>
   <!-- /.control-sidebar -->
-</div>
-<!-- ./wrapper -->
+<?php
+  $is_login_page = isset($body) && strpos($body, 'login-page') !== false;
+  if (!$is_login_page) {
+      echo "</div>\n<!-- ./wrapper -->";
+  }
+?>
+<?php if ($is_login_page): ?>
+
+<style>
+  body.login-page .main-footer {
+    margin-left: 0 !important;
+    width: 100%;
+    text-align: center;
+    background-color: transparent;
+    border-top: none;
+    color: #6c757d;
+    padding: 1rem 0;
+  }
+  body.login-page .login-box {
+    margin-bottom: 2rem;
+  }
+  /* Evitar desplazamientos por reglas de AdminLTE en tamaños md+ */
+  @media (min-width: 768px) {
+    body.login-page .main-footer {
+      margin-left: 0 !important;
+    }
+  }
+  /* Alinear el bloque derecho del footer en móviles si existiera */
+  body.login-page .main-footer .float-right {
+    float: none !important;
+    display: inline-block;
+  }
+  body.login-page .main-footer strong, 
+  body.login-page .main-footer a {
+    color: inherit;
+  }
+  /* Opcional: limitar ancho visual del footer para alinearse con la card */
+  /* body.login-page .main-footer { max-width: 370px; margin: 0 auto; } */
+  /* Si deseas que el footer quede fijo abajo, descomenta:
+  body.login-page .main-footer { position: fixed; bottom: 0; left: 0; right: 0; }
+  */
+</style>
+<?php endif; ?>
 
 <!-- jQuery -->
 <script src="<?= base_url('plugins/jquery/jquery.min.js') ?>"></script>
