@@ -33,6 +33,11 @@ let scaleX = 0;          // Escala Horizontal (Px / Metro)
 let scaleY = 0;          // Escala Vertical (Px / Metro)
 let construccionPoligono = []; // Array temporal para guardar los puntos mientras dibujas
 let cursorPos = {x: 0, y: 0};  // Para dibujar la línea guía elástica
+let isResizing = false;         // Arrastre de tamaño del canvas
+let resizeStart = {x: 0, y: 0}; // Punto inicial del arrastre (espacio canvas)
+let resizeStartClient = {x: 0, y: 0}; // Punto inicial del arrastre (coordenadas de pantalla)
+let initialCanvasSize = {w: 0, h: 0};
+const RESIZE_HANDLE_SIZE = 20;  // tamaño del área sensible en la esquina inferior derecha
 
 let visibilidad = {
     area: true,  // Edificios visibles por defecto
@@ -42,6 +47,10 @@ let visibilidad = {
 
 // Conexiones gráficas DEA -> Edificio (cuando cobertura individual >= 99%)
 let conexionesDeaEdificio = []; // {deaId, deaX, deaY, edificioNombre, cx, cy}
+// Lista de IDs de edificios ocultos individualmente
+let edificiosOcultos = new Set();
+// Lista de IDs de edificios seleccionados para resaltar en verde
+let edificiosSeleccionados = new Set();
 
 // ==========================================
 // 3. INICIALIZACIÓN
@@ -71,9 +80,9 @@ img.onload = function() {
 
 function obtenerCoordenadasMouse(e) {
     const rect = canvas.getBoundingClientRect();
-    // Factor de escala: Tamaño Real Imagen / Tamaño Visual en Pantalla
-    const factorX = canvas.width / rect.width;
-    const factorY = canvas.height / rect.height;
+    // Convertimos a coordenadas de la imagen original para que el render escalado se alinee
+    const factorX = img.width / rect.width;
+    const factorY = img.height / rect.height;
 
     return {
         x: (e.clientX - rect.left) * factorX,
@@ -91,6 +100,25 @@ canvas.addEventListener('mousemove', function(e) {
     if (modoActual === 'crear_area' && construccionPoligono.length > 0) {
         redibujarMapa();
     }
+
+    // Si estamos redimensionando, ajustar tamaño del canvas manteniendo proporción de la imagen
+    if (isResizing) {
+        // Usar coordenadas de pantalla para estabilidad
+        const dxClient = e.clientX - resizeStartClient.x;
+        const dyClient = e.clientY - resizeStartClient.y;
+        // Mantener proporción según imagen: usamos delta mayor
+        const delta = Math.max(dxClient, dyClient);
+        const aspect = img.width / img.height;
+        let newW = Math.max(200, initialCanvasSize.w + delta);
+        let newH = Math.max(200, Math.round(newW / aspect));
+
+        canvas.width = newW;
+        canvas.height = newH;
+        // Recalcular escalas
+        scaleX = canvas.width / CONFIG.anchoReal;
+        scaleY = canvas.height / CONFIG.altoReal;
+        redibujarMapa();
+    }
 });
 
 canvas.addEventListener('mousedown', function(e) {
@@ -99,7 +127,30 @@ canvas.addEventListener('mousedown', function(e) {
     const x = coords.x;
     const y = coords.y;
 
+    // Verificar si clic en el asa de redimensionamiento (esquina inferior derecha)
+    const enHandle = (x > canvas.width - RESIZE_HANDLE_SIZE) && (y > canvas.height - RESIZE_HANDLE_SIZE);
+    if (e.button === 0 && enHandle) {
+        isResizing = true;
+        resizeStart = {x, y};
+        resizeStartClient = {x: e.clientX, y: e.clientY};
+        initialCanvasSize = {w: canvas.width, h: canvas.height};
+        return;
+    }
+
     if (e.button === 0) { // Clic Izquierdo
+        // Si se mantiene Shift y se clickea un edificio, alternar selección verde
+        if (e.shiftKey) {
+            let areaShift = buscarAreaEnPunto(x, y);
+            if (areaShift && areaShift.id != null) {
+                if (edificiosSeleccionados.has(areaShift.id)) {
+                    edificiosSeleccionados.delete(areaShift.id);
+                } else {
+                    edificiosSeleccionados.add(areaShift.id);
+                }
+                redibujarMapa();
+                return; // No continuar con otras acciones del clic
+            }
+        }
         if (modoActual === null) {
             alert("Por favor, selecciona una herramienta del panel primero.");
             return;
@@ -124,6 +175,35 @@ canvas.addEventListener('mousedown', function(e) {
 
     } else if (e.button === 2) {
         eliminarPuntoCercano(x, y);
+    }
+});
+
+// Terminar redimensionamiento al soltar el mouse o salir del canvas
+document.addEventListener('mouseup', function() {
+    if (isResizing) {
+        isResizing = false;
+    }
+});
+canvas.addEventListener('mouseleave', function() {
+    if (isResizing) {
+        isResizing = false;
+    }
+});
+
+// Ocultar/mostrar edificio bajo el cursor al presionar "v"
+document.addEventListener('keydown', function(e) {
+    if (e.key.toLowerCase() === 'v') {
+        const area = buscarAreaEnPunto(cursorPos.x, cursorPos.y);
+        if (area && area.id != null) {
+            if (edificiosOcultos.has(area.id)) {
+                edificiosOcultos.delete(area.id);
+                document.getElementById('resultados').innerHTML = `<small class="text-info">Edificio mostrado: ${area.nombre}</small>`;
+            } else {
+                edificiosOcultos.add(area.id);
+                document.getElementById('resultados').innerHTML = `<small class="text-warning">Edificio oculto: ${area.nombre}</small>`;
+            }
+            redibujarMapa();
+        }
     }
 });
 
@@ -446,12 +526,17 @@ function limpiarMapa() {
 
 function redibujarMapa() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Escalar todo el render según tamaño actual del canvas respecto de la imagen
+    const sx = canvas.width / img.width;
+    const sy = canvas.height / img.height;
+    ctx.save();
+    ctx.scale(sx, sy);
     ctx.drawImage(img, 0, 0);
 
     // 1. DIBUJAR ÁREAS (Solo si visibilidad.area es TRUE)
     if (visibilidad.area) {
         puntos.forEach(p => { 
-            if (p.tipo === 'area') dibujarArea(p); 
+            if (p.tipo === 'area' && !edificiosOcultos.has(p.id)) dibujarArea(p); 
         });
     }
 
@@ -493,13 +578,38 @@ function redibujarMapa() {
         ctx.strokeStyle = '#ff0000';
         ctx.lineWidth = 2;
         conexionesDeaEdificio.forEach(con => {
+            // No dibujar flechas hacia edificios ocultos individualmente
+            if (edificiosOcultos.has(con.edificioId)) return;
             dibujarFlecha(con.deaX, con.deaY, con.cx, con.cy, {
                 color: '#ff0000',
                 lineWidth: 2,
                 headLength: 12,
-                headAngleDeg: 30
+                headAngleDeg: 30,
+                reverseHead: false
             });
         });
+    }
+    ctx.restore();
+
+    // 6. Dibujar asa de redimensionamiento en esquina inferior derecha (no escalado)
+    dibujarHandleResize();
+}
+
+function dibujarHandleResize() {
+    const size = RESIZE_HANDLE_SIZE;
+    const x0 = canvas.width - size;
+    const y0 = canvas.height - size;
+    // Fondo semitransparente
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.fillRect(x0, y0, size, size);
+    // Rayitas diagonales para indicar arrastre
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 2;
+    for (let i = 4; i <= size; i += 6) {
+        ctx.beginPath();
+        ctx.moveTo(canvas.width - i, canvas.height - size);
+        ctx.lineTo(canvas.width, canvas.height - size + i);
+        ctx.stroke();
     }
 }
 
@@ -509,6 +619,7 @@ function dibujarFlecha(x1, y1, x2, y2, opts) {
     const lw = (opts && opts.lineWidth) || 2;
     const headLength = (opts && opts.headLength) || 12; // px
     const headAngleDeg = (opts && opts.headAngleDeg) || 30; // grados
+    const reverseHead = (opts && opts.reverseHead) || false; // punta al inicio
 
     // Línea principal
     ctx.strokeStyle = color;
@@ -525,15 +636,20 @@ function dibujarFlecha(x1, y1, x2, y2, opts) {
     const headAngle = headAngleDeg * Math.PI / 180;
 
     // Puntos del triángulo de la punta
-    const xA = x2 - headLength * Math.cos(angle - headAngle);
-    const yA = y2 - headLength * Math.sin(angle - headAngle);
-    const xB = x2 - headLength * Math.cos(angle + headAngle);
-    const yB = y2 - headLength * Math.sin(angle + headAngle);
+    let hx = x2, hy = y2;
+    if (reverseHead) {
+        // Colocar la punta en el inicio
+        hx = x1; hy = y1;
+    }
+    const xA = hx - headLength * Math.cos(angle - headAngle) * (reverseHead ? -1 : 1);
+    const yA = hy - headLength * Math.sin(angle - headAngle) * (reverseHead ? -1 : 1);
+    const xB = hx - headLength * Math.cos(angle + headAngle) * (reverseHead ? -1 : 1);
+    const yB = hy - headLength * Math.sin(angle + headAngle) * (reverseHead ? -1 : 1);
 
     // Dibujo de la punta (rellena)
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.moveTo(x2, y2);
+    ctx.moveTo(hx, hy);
     ctx.lineTo(xA, yA);
     ctx.lineTo(xB, yB);
     ctx.closePath();
@@ -555,9 +671,15 @@ function dibujarArea(area) {
     }
     ctx.closePath();
 
-    ctx.fillStyle = "rgba(0, 0, 255, 0.3)"; 
+    // Si el edificio está seleccionado, usar verde; si no, azul
+    if (edificiosSeleccionados.has(area.id)) {
+        ctx.fillStyle = "rgba(0, 200, 0, 0.35)";
+        ctx.strokeStyle = "green";
+    } else {
+        ctx.fillStyle = "rgba(0, 0, 255, 0.3)"; 
+        ctx.strokeStyle = "blue";
+    }
     ctx.fill();
-    ctx.strokeStyle = "blue";
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -712,6 +834,7 @@ function calcularCobertura() {
                         deaX: item.x,
                         deaY: item.y,
                         edificioNombre: edificio.nombre,
+                        edificioId: edificio.id,
                         cx: cx,
                         cy: cy
                     });

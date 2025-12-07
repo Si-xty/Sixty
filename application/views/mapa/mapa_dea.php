@@ -93,7 +93,7 @@
                     </div>
 
                 </div>
-                <p class="text-muted mt-2"><small>Clic: Agregar | Clic Derecho: Eliminar</small></p>
+                <p class="text-muted mt-2"><small>Clic Izquierdo: Agregar | Clic Derecho: Eliminar </small><br><small>V: Ocultar Edificio Individual</small><br><small>Shift + Clic Izquierdo: Seleccionar Edificio Candidato</small></p>
             </div>
 
         </div>
