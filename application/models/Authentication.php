@@ -20,7 +20,7 @@ class Authentication extends CI_Model
         }
     }
 
-    public function check_isAdmin()
+    public function checkAdmin()
     {
         if($this->session->has_userdata('authenticated'))
         {
