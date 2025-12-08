@@ -1,4 +1,5 @@
 <div class="content-wrapper">
+    
     <!-- <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -15,14 +16,21 @@
     </section> -->
 
     <section class="content">
-        <div class="container-fluid pt-5">
-            <div class="row">
-                <div class="col-12">
-                    <div class="plan-list-header">
-                        <span class="plan-name-col">Nombre</span>
-                        <span class="plan-privacy-col">Privacidad</span>
-                        <span class="plan-last-access-col">Último acceso</span>
-                    </div>
+        <div class="container-fluid px-3 px-md-4">
+            <div class="hero-banner mt-4 mb-4 p-4 p-md-5 d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="hero-title mb-2"><i class="fas fa-tasks mr-2"></i>Mis tableros</h2>
+                    <p class="hero-subtitle mb-0">Crea, renombra y accede rápidamente a tus planes.</p>
+                </div>
+                <!-- Acción para nuevo tablero ya existe en navbar_boards; no repetir aquí -->
+            </div>
+            <div class="mosaic-card mosaic-card-outline">
+                <div class="mosaic-content">
+                            <div class="plan-list-header">
+                                <span class="plan-name-col">Nombre</span>
+                                <span class="plan-privacy-col">Privacidad</span>
+                                <span class="plan-last-access-col">Último acceso</span>
+                            </div>
                     <?php if (!empty($boards)): ?>
                         <?php foreach ($boards as $board): ?>
                             <div class="plan-item d-flex justify-content-between align-items-center clickable-row" data-url="<?= base_url('kanban/load_board/' . $board->board_id) ?>">
@@ -96,13 +104,33 @@
                 <form id="create-board-form">
                     <div class="form-group">
                         <label for="boardName">Nombre del Tablero</label>
-                        <input type="text" class="form-control" id="boardName" name="board_name" required>
+                        <input type="text" class="form-control" id="boardName" name="board_name" placeholder="Ej: Proyecto Q1, Roadmap, Personal" required>
                     </div>
                     <div class="form-group">
                         <label for="boardDescription">Descripción (Opcional)</label>
-                        <textarea class="form-control" id="boardDescription" name="description"></textarea>
+                        <textarea class="form-control" id="boardDescription" name="description" placeholder="Describe el propósito o alcance del tablero"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Crear</button>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="boardPrivacy">Privacidad</label>
+                            <select class="form-control" id="boardPrivacy" name="privacy">
+                                <option value="private" selected>Solo usted</option>
+                                <option value="shared">Compartido</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="boardTemplate">Plantilla</label>
+                            <select class="form-control" id="boardTemplate" name="template">
+                                <option value="blank" selected>En blanco</option>
+                                <option value="todo">To-Do / Doing / Done</option>
+                                <option value="priorities">Prioridades (Alta/Media/Baja)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Crear</button>
+                    </div>
                 </form>
             </div>
         </div>

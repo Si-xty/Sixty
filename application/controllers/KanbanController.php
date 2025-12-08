@@ -22,7 +22,7 @@ class KanbanController extends CI_Controller {
         $user_role = $this->session->userdata('authenticated');
 
         if (!$is_logged_in) {
-            redirect('auth/login'); 
+            redirect('login'); 
         }
 
         // if ($user_role !== '1') {
