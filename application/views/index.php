@@ -21,26 +21,31 @@
 					<p class="hero-subtitle mb-0">Tu espacio para planificar, visualizar y actuar.</p>
 				</div>
 				<div class="hero-actions d-none d-md-block">
-					<a href="<?= base_url('kanban') ?>" class="btn btn-light mr-2"><i class="fas fa-columns mr-1"></i> Kanban</a>
+                    <?php if($this->session->userdata('authenticated') == 'tester' || $this->session->userdata('authenticated') == '1') { ?>
+					    <a href="<?= base_url('kanban') ?>" class="btn btn-light mr-2"><i class="fas fa-columns mr-1"></i> Kanban</a>
+                    <?php } ?>
 					<a href="<?= base_url('mapa') ?>" class="btn btn-light mr-2"><i class="fas fa-map-marker-alt mr-1"></i> Mapa DEA</a>
 					<a href="<?= base_url('calendar') ?>" class="btn btn-light"><i class="far fa-calendar-alt mr-1"></i> Calendario</a>
 				</div>
 			</div>
 
 			<!-- Mosaic layout -->
+             
 			<div class="row">
 				<!-- Kanban: tall gradient card -->
-				<div class="col-lg-4 col-md-6 mb-3">
-					<a href="<?= base_url('kanban') ?>" class="mosaic-link">
-						<div class="mosaic-card mosaic-card-gradient h-100">
-							<div class="mosaic-icon"><i class="fas fa-columns"></i></div>
-							<div class="mosaic-content">
-								<h3>Kanban</h3>
-								<p>Gestiona tus tareas por tableros, columnas y etiquetas.</p>
-							</div>
-						</div>
-					</a>
-				</div>
+                <?php if($this->session->userdata('authenticated') == 'tester' || $this->session->userdata('authenticated') == '1') { ?>
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <a href="<?= base_url('kanban') ?>" class="mosaic-link">
+                            <div class="mosaic-card mosaic-card-gradient h-100">
+                                <div class="mosaic-icon"><i class="fas fa-columns"></i></div>
+                                <div class="mosaic-content">
+                                    <h3>Kanban</h3>
+                                    <p>Gestiona tus tareas por tableros, columnas y etiquetas.</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                <?php } ?>
 
 				<!-- Calendario: wide card with calendar visual placeholder -->
 				<div class="col-lg-8 col-md-6 mb-3">
