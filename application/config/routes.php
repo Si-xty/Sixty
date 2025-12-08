@@ -71,6 +71,7 @@ $route['googleauth'] = 'Auth/GoogleController/index';
 $route['googleauth/logout'] = 'Auth/GoogleController/logout';
 
 $route['wol'] = 'WolController/wol';
+$route['dashboard'] = 'DashboardController/index';
 
 // Kanban
 $route['kanban'] = 'KanbanController/index';
