@@ -8,15 +8,15 @@ class MapaController extends CI_Controller {
         $this->load->model('mapa_dea/MapaModel');
         $this->load->helper('url');
 
-        $this->load->model('Authentication');
-        $this->Authentication->checkTester();
+        // $this->load->model('Authentication');
+        // $this->Authentication->checkTester();
 
-        $is_logged_in = $this->session->userdata('logged_in');
-        $user_role = $this->session->userdata('authenticated');
+        // $is_logged_in = $this->session->userdata('logged_in');
+        // $user_role = $this->session->userdata('authenticated');
 
-        if (!$is_logged_in) {
-            redirect('auth/login'); 
-        }
+        // if (!$is_logged_in) {
+        //     redirect('login'); 
+        // }
     }
 
     public function index() {

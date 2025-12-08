@@ -6,10 +6,10 @@
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="<?= base_url('welcome') ?>" class="nav-link">Home</a>
+        <a href="<?= base_url('welcome') ?>" class="nav-link">Inicio</a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="<?= base_url('welcome') ?>" class="nav-link">Contact</a>
+        <a href="<?= base_url('welcome') ?>" class="nav-link">Contacto</a>
       </li>
     </ul>
 
@@ -54,7 +54,7 @@
         </a>
       </li>
       <?php if(!$this->session->has_userdata('authenticated')) { ?>
-        <a class="btn btn-primary" href="<?= base_url('login'); ?>">Iniciar sesión</a>
+        <a class="btn btn-primary" href="<?= base_url('login'); ?>">Iniciar Sesión</a>
       <?php } ?>
       </ul>
   </nav>

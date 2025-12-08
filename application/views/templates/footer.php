@@ -1,10 +1,6 @@
-<footer class="main-footer">
-    <strong><a href="https://sixty.cl">Sixty</a> Copyright &copy; 2025 </strong>
-    All rights reserved.
-    <div class="float-right d-none d-sm-inline-block">
-      <!-- <b>Version</b> 3.2.0 -->
-    </div>
-  </footer>
+<footer class="main-footer text-center">
+    <div>Sixty Copyright &copy; 2025 All rights reserved.</div>
+</footer>
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">

@@ -762,7 +762,7 @@ function calcularCobertura() {
     let divRes = document.getElementById('resultados');
     let boxCSV = document.getElementById('output-csv'); 
 
-    divRes.innerHTML = "<b>--- ANÁLISIS DE COBERTURA TOTAL ---</b><br>";
+    divRes.innerHTML = "<b>ANÁLISIS DE COBERTURA TOTAL</b><br>";
 
     let listaValores = []; // Aquí guardaremos los decimales (0.00 - 1.00)
 

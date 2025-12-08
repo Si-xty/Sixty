@@ -7,3 +7,116 @@
 .kanban-task .dropdown-toggle::after { 
     content: none; 
 }
+
+/* Dashboard index blocks */
+.dashboard-block-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+.dashboard-block {
+    min-height: 260px;
+}
+
+/* Innovative index mosaic styles */
+.hero-banner {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border-radius: 0.5rem;
+    color: #fff;
+}
+.hero-banner .btn-outline-light {
+    border-color: rgba(255,255,255,0.85);
+    color: #fff;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(2px);
+}
+.hero-banner .btn-outline-light:hover {
+    background: rgba(255,255,255,0.28);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.hero-banner .btn-outline-light:focus { box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.35); }
+
+/* How-to collapse panel */
+#howto-collapse.card, #howto-collapse .card {
+    background: #f8f9fb;
+    border: 1px solid #e3e6ef;
+}
+#howto-collapse .badge {
+    background: #eef2ff;
+    color: #334155;
+    font-weight: 500;
+    padding: 0.35rem 0.5rem;
+}
+.hero-title {
+    font-weight: 700;
+}
+.hero-subtitle {
+    opacity: 0.9;
+}
+
+.mosaic-link { display: block; text-decoration: none; color: inherit; }
+.mosaic-card {
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    overflow: visible; /* allow dropdowns to render outside card bounds */
+}
+.mosaic-card .mosaic-content { overflow: visible; }
+
+/* Ensure dropdowns in list are not clipped */
+.plan-item { position: relative; }
+.mosaic-card .dropdown-menu { z-index: 2000; }
+
+/* Improve click target for board options (ellipsis) */
+.board-options-dropdown .dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+}
+.board-options-dropdown .dropdown-toggle:hover {
+    background: rgba(0,0,0,0.06);
+}
+.kanban-ellipsis {
+    font-size: 1rem; /* keep icon readable within larger target */
+}
+.mosaic-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+.mosaic-card-gradient {
+    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+    color: #fff;
+}
+.mosaic-card-outline { background: #fff; }
+.mosaic-content { padding: 1rem 1.25rem; }
+.mosaic-icon { font-size: 2rem; padding: 1rem 1.25rem 0; opacity: 0.9; }
+
+/* Calendar preview dots */
+.calendar-preview { padding: 0.75rem; }
+.calendar-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 16px);
+    grid-gap: 6px;
+}
+.calendar-preview-grid .dot { display: inline-block; width: 16px; height: 16px; border-radius: 50%; }
+
+/* Map preview */
+.mosaic-map {
+    background-image: linear-gradient(135deg, rgba(37,117,252,0.15), rgba(106,17,203,0.15)), url('../img/map-preview.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    min-height: 260px;
+}
+.mosaic-map .mosaic-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}

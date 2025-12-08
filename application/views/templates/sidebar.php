@@ -41,33 +41,45 @@
 
       <!-- Sidebar Menu -->
       <nav class="mt-2">
+        <?php $currentClass = $this->router->fetch_class(); ?>
+          <?php 
+            $currentClass = $this->router->fetch_class(); 
+            $firstSegment = $this->uri->segment(1);
+            $isInicioActive = (
+              $firstSegment === null || $firstSegment === '' || $firstSegment === '/' ||
+              in_array(strtolower($firstSegment), ['welcome', 'home', 'inicio']) ||
+              in_array($currentClass, ['MainController', 'Welcome', 'WelcomeController'])
+            );
+          ?>
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
           <li class="nav-item menu-open">
-            <a href="#" class="nav-link active">
+            <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
-                Dashboard
+                Menú
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="<?= base_url('welcome')?>" class="nav-link active">
+                <li class="nav-item">
+                  <a href="<?= base_url('welcome')?>" class="nav-link <?= $isInicioActive ? 'active' : '' ?>">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Inicio</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="<?= base_url('proximamente')?>" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>...</p>
-                </a>
-              </li>
               <?php if($this->session->userdata('authenticated') == '1') { ?>
               <li class="nav-item">
-                <a href="#" id="sendMailjetBtn" class="nav-link">
+                <a href="<?= base_url('dashboard')?>" class="nav-link <?= ($currentClass === 'DashboardController') ? 'active' : '' ?>">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Dashboard</p>
+                </a>
+              </li>
+              <?php } ?>
+              <?php if($this->session->userdata('authenticated') == '1') { ?>
+              <li class="nav-item">
+                <a href="#" id="sendMailjetBtn" class="nav-link <?= ($currentClass === 'MailController') ? 'active' : '' ?>">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Mailjet</p>
                 </a>
@@ -75,17 +87,23 @@
               <?php } ?>
               <?php if($this->session->userdata('authenticated') == '1') { ?>
               <li class="nav-item">
-                <a href="#" id="wol-btn" class="nav-link">
+                <a href="#" id="wol-btn" class="nav-link <?= ($currentClass === 'WolController') ? 'active' : '' ?>">
                   <i class="far fa-circle nav-icon"></i>
                   <p>WOL</p>
                 </a>
               </li>
               <?php } ?>
+              <li class="nav-item">
+                <a href="<?= base_url('proximamente')?>" class="nav-link <?= ($currentClass === 'ProximamenteController') ? 'active' : '' ?>">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>...</p>
+                </a>
+              </li>
             </ul>
           </li>
           <li class="nav-header">UTILITIES</li>
           <li class="nav-item">
-            <a href="<?= base_url('proximamente')?>" class="nav-link">
+            <a href="<?= base_url('proximamente')?>" class="nav-link <?= ($currentClass === 'CalendarController') ? 'active' : '' ?>">
               <i class="nav-icon far fa-calendar-alt"></i>
               <p>
                 Calendar
@@ -95,7 +113,7 @@
           </li>
           <?php if($this->session->userdata('authenticated') == 'tester' || $this->session->userdata('authenticated') == '1') { ?>
             <li class="nav-item">
-              <a href="<?= base_url('kanban') ?>" class="nav-link">
+              <a href="<?= base_url('kanban') ?>" class="nav-link <?= ($currentClass === 'KanbanController') ? 'active' : '' ?>">
                 <i class="nav-icon fas fa-columns"></i>
                 <p>
                   Kanban Board
@@ -103,16 +121,14 @@
               </a>
             </li>
           <?php } ?>
-          <?php if($this->session->userdata('authenticated') == 'tester' || $this->session->userdata('authenticated') == '1') { ?>
-            <li class="nav-item">
-              <a href="<?= base_url('mapa') ?>" class="nav-link">
-                <i class="nav-icon fas fa-columns"></i>
+          <li class="nav-item">
+              <a href="<?= base_url('mapa') ?>" class="nav-link <?= ($currentClass === 'MapaController') ? 'active' : '' ?>">
+                <i class="nav-icon fas fa-heartbeat"></i>
                 <p>
                   Mapa DEA
                 </p>
               </a>
             </li>
-          <?php } ?>
           <!-- <li class="nav-header">MISCELLANEOUS</li>
           <li class="nav-item">
             <a href="iframe.html" class="nav-link">

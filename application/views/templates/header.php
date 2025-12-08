@@ -48,7 +48,7 @@
 
   <!-- Preloader -->
   <?php if (!$is_login_page): ?>
-  <div class="preloader flex-column justify-content-center align-items-center">
+  <!-- <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__shake" src="<?= base_url('favicon.png') ?>" alt="SixtyLogo" height="60" width="60">
-  </div>
+  </div> -->
   <?php endif; ?>
