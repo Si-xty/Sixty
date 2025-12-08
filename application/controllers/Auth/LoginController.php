@@ -70,6 +70,8 @@ class LoginController extends CI_Controller
                 $this->session->set_userdata('authenticated', $user->rol);
                 $this->session->set_userdata('auth_user', $auth_userdetails);
                 $this->session->set_userdata('user_authenticated', $user->id);
+                // Alinear el comportamiento con Google Login: marcar sesión como iniciada
+                $this->session->set_userdata('logged_in', TRUE);
 
                 $user = new UserModel();
                 // $user->updateConnection($this->session->userdata('user_authenticated'));
