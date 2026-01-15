@@ -38,7 +38,7 @@ class GoogleController extends CI_Controller
 
         $client->setClientId($this->config->item('google_client_id'));
         $client->setClientSecret($this->config->item('google_client_secret'));
-        $client->setRedirectUri($this->config->item('google_redirect_uri'));
+        $client->setRedirectUri(base_url('googleauth'));
         $client->addScope("email");
         $client->addScope("profile");
 

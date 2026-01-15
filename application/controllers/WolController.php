@@ -10,7 +10,8 @@ class WolController extends CI_Controller {
         parent::__construct();
 
         $this->load->model('Authentication');
-        $this->Authentication->check_isAdmin();
+        // Asegura que solo admin pueda acceder
+        $this->Authentication->checkAdmin();
     }
 
     public function index()
@@ -35,27 +36,33 @@ class WolController extends CI_Controller {
                 $command = "wakeonlan " . escapeshellarg($mac_address);
                 shell_exec($command);
                 
-                // $data['message'] = "Se ha enviado el paquete m\u00E1gico a la direcci\u00F3n: " . $mac_address;
-
-                echo json_encode([
-                    'success' => true,
-                    'status' => 'success'
-                ]);
+                // Respuesta JSON consistente
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode([
+                        'success' => true,
+                        'status' => 'success',
+                        'message' => 'Paquete WOL enviado',
+                    ]));
             } else {
-                // $data['message'] = "Error: La direcci\u00F3n MAC no est\u00E1 definida en el archivo de configuraci\u00F3n.";
-
-                echo json_encode([
-                    'success' => true,
-                    'status' => 'error'
-                ]);
+                // Dirección MAC no definida
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode([
+                        'success' => false,
+                        'status' => 'error',
+                        'message' => 'La dirección MAC no está definida en la configuración',
+                    ]));
             }
         } else {
-            // $data['message'] = "Error: El archivo de configuraci\u00F3n no se encontr\u00F3.";
-
-            echo json_encode([
-                    'success' => true,
+            // Archivo de configuración no encontrado
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'success' => false,
                     'status' => 'error',
-                ]);
+                    'message' => 'Archivo de configuración WOL no encontrado',
+                ]));
         }
     }
 }

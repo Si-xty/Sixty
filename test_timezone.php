@@ -1,6 +1,10 @@
 <?php
 echo date_default_timezone_get() . "\n";
 echo date('Y-m-d H:i:s');
+
+// echo implode(', ', get_loaded_extensions());
+
+// phpinfo();
 ?>
-<!-- <?php phpinfo(); ?> -->
+<!-- <?php  ?> -->
 

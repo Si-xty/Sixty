@@ -7,7 +7,7 @@ class MailController extends CI_Controller {
         parent::__construct();
         $this->load->library('mailjet_mailer');
         $this->load->model('Authentication');
-        $this->Authentication->check_isAdmin();
+        $this->Authentication->checkAdmin();
     }
 
     // Al acceder a /mailjet, envía un correo al usuario autenticado y responde por JSON

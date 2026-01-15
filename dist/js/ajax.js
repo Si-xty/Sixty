@@ -55,9 +55,9 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    showSuccessNotification("Wake-on-LAN ejecutado correctamente");
+                    showSuccessNotification(response.message || "Wake-on-LAN ejecutado correctamente");
                 } else {
-                    showErrorNotification("MAC no definida");
+                    showErrorNotification(response.message || "Error en WOL");
                 }
             },
             error: function (xhr, status, error) {
