@@ -9,8 +9,24 @@ application/logs/*
 !application/*/.htaccess
 
 application/config/*
-application/libraries/*
 
+!application/config/index.html
+!application/config/routes.php
+!application/config/autoload.php
+!application/config/constants.php
+!application/config/mimes.php
+!application/config/database.php
+!application/config/foreign_chars.php
+!application/config/user_agents.php
+!application/config/migration.php
+!application/config/profiler.php
+!application/config/hooks.php
+!application/config/doctypes.php
+!application/config/smileys.php
+!application/config/memcached.php
+
+
+application/libraries/
 
 .env
 
